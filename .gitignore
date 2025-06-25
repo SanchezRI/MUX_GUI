@@ -1,0 +1,7 @@
+/CMakeSettings.json/
+/.vs/
+/.idea/
+/__pycache__/
+/out/
+/CMakeSettings.json
+/libs/imgui_api/backends/cmake_install.cmake

@@ -1,0 +1,19 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE 9, 1  // English (United States)
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+IDI_ICON1 ICON "C:/Users/max-tango/Documents/MUX_GUI/include/icons/lhep.ico"
+
+#endif    // English (United States) resources
