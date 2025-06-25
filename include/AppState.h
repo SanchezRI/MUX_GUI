@@ -5,7 +5,7 @@
 struct AppState {
 
     // Slave windows main params [used in Master]
-    bool show_adc_dac_window = true;
+    bool show_adc_dac_window = false;
     bool show_multiplexer_window = true;
     bool show_packet_tracer_window = true;
 

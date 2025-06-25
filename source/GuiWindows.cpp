@@ -69,7 +69,7 @@ void GuiWindows::ShowMainWindow(AppState& state) {
 
     ImGui::SeparatorText("Devices list");
 
-    ImGui::Checkbox("Open Analog Digital Converter", &state.show_adc_dac_window);
+    ImGui::Checkbox("Open ADC/DAC module ", &state.show_adc_dac_window);
     ImGui::SetItemTooltip("Opens ADC/DAC Module's management window");
     ImGui::SameLine(); ImGui::Button("Show ADC description");
     ImGui::SetItemTooltip("This is Analog digital converter + Digital Analog converter module");
@@ -78,6 +78,11 @@ void GuiWindows::ShowMainWindow(AppState& state) {
     ImGui::SetItemTooltip("Opens multiplexer's management window");
     ImGui::SameLine(); ImGui::Button("Show MUX description");
     ImGui::SetItemTooltip("This is Multiplexer module");
+
+    ImGui::Checkbox("Open Packet Tracer PT ", &state.show_packet_tracer_window);
+    ImGui::SetItemTooltip("Opens multiplexer's packet tracer window");
+    ImGui::SameLine(); ImGui::Button("Show PT description");
+    ImGui::SetItemTooltip("This is packet tracer feature");
 
     ImGui::ProgressBar(-1.0f * (float)ImGui::GetTime(), ImVec2(0.0f, 0.0f), "Searching..");
 

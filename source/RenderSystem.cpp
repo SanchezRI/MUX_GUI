@@ -40,7 +40,7 @@ bool RenderSystem::Initialize(int width, int height, const char* title) {
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-    io.Fonts->AddFontFromFileTTF("C:/Users/max-tango/Documents/MUX_GUI/include/fonts/hpsimplified_bold.ttf", 22);
+    io.Fonts->AddFontFromFileTTF("C:/Users/Administrator/Documents/GitHub/MUX_GUI/include/fonts/hpsimplified_bold.ttf", 22);
 
     // ImGui stule
     ImGui::StyleColorsClassic();
