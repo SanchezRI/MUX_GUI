@@ -102,7 +102,7 @@ void GuiWindows::ShowMultiplexerWindow(AppState& state) {
             ImGui::BeginGroup(); ImGui::NextColumn();
             if (ImGui::Button("Set 1.1 x 2.1 port")) {
                 modbus.writeSingleRegister(10, 12, 1);
-                std::cout << "Callback: Seting 1.1 x 2.1 port" << std::endl;
+                modbus.getPacketLog();
             }
             ImGui::SameLine(); ImGui::NextColumn();
             if (ImGui::Button("Set 1.2 x 2.1 port")) {

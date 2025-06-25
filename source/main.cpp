@@ -29,7 +29,8 @@ int main() {
         }
 
         if (state.show_packet_tracer_window) {
-            GuiWindows::ShowPacketTracerWindow(state);
+            //GuiWindows::ShowPacketTracerWindow(state);
+            GuiWindows::ShowPacketTracerWindow(&state.show_packet_tracer_window);
         }
 
         RenderSystem::EndFrame();

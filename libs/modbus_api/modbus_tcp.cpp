@@ -204,10 +204,25 @@ std::string ModbusTcp::getFunctionName(uint8_t code) const {
     }
 }
 
+//std::vector<ModbusTcp::Packet> ModbusTcp::getPacketLog() const {
+//    std::lock_guard<std::mutex> lock(log_mutex_);
+//    return packet_log_;
+//}
+
 std::vector<ModbusTcp::Packet> ModbusTcp::getPacketLog() const {
-    std::lock_guard<std::mutex> lock(log_mutex_);
-    return packet_log_;
+	// std::cout << "getPacketLog called. Number of packets: " << packet_log_.size() << std::endl;
+
+	for (const auto& packet : packet_log_) {
+		std::cout << "Packet - Time: " << packet.timestamp
+			<< ", Direction: " << packet.direction
+			<< ", Function: " << packet.function
+			<< ", Details: " << packet.details
+			<< ", Data: " << packet.dataHex << std::endl;
+	}
+
+	return packet_log_;
 }
+
 
 void ModbusTcp::clearPacketLog() {
     std::lock_guard<std::mutex> lock(log_mutex_);
