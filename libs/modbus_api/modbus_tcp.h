@@ -5,7 +5,6 @@
 #include <string>
 #include <mutex>
 #include <functional>
-#include <format>
 #include <thread>
 #include <atomic>
 #include <sstream>

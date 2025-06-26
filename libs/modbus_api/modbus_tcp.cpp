@@ -1,6 +1,5 @@
 ﻿//#define TEST_MODE
 #include "modbus_tcp.h"
-#include <format>
 
 /// Constructors and destructors
 

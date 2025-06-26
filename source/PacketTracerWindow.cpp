@@ -1,5 +1,64 @@
-﻿//#define DEBUG_TEST
+﻿#define DEBUG_TEST
 #include "GuiWindows.h"
+
+struct PacketTracer
+{
+    ImGuiTextBuffer Buf;
+    bool ScrollToBottom;
+
+    void Clear() { Buf.clear(); }
+
+    void AddLog(const char* fmt, ...) IM_FMTARGS(2)
+    {
+        va_list args;
+        va_start(args, fmt);
+        Buf.appendfv(fmt, args);
+        va_end(args);
+        ScrollToBottom = true;
+    }
+
+    void Draw(const char* title, bool* p_opened = NULL)
+    {
+        ImGui::Begin(title, p_opened);
+        ImGui::TextUnformatted(Buf.begin());
+        if (ScrollToBottom)
+            ImGui::SetScrollHereY(1.0f);
+        ScrollToBottom = false;
+        ImGui::End();
+    }
+};
+
+void GuiWindows::ShowPacketTracerWindow(AppState& state) {
+    static PacketTracer log;
+
+    ImGui::SetNextWindowSize(ImVec2(500, 400), ImGuiCond_FirstUseEver);
+    ImGui::Begin("PacketTracer: Communication traffic", &state.show_packet_tracer_window);
+
+    const char* categories[3] = { "INFO", "WARNING", "ERROR"};
+    auto packets = state.modbus.getPacketLog();
+
+    if (!state.modbus.isConnected()) {
+        if (packets.empty()) {
+            log.AddLog("[%.2f sec] {%s}: Please build connection with ModbusTCP server.\n", ImGui::GetTime(), categories[2]);
+        }
+        else {
+            log.AddLog("[%s] [%.2f sec] {%s}: Failed connection to ModbusTCP server\n", packets.data()->timestamp, ImGui::GetTime(), categories[1]);
+        }
+    }
+    else {
+        log.AddLog("[%s] [%.2f sec] {%s} | %s | %s | %s | %s | ", packets.data()->timestamp, ImGui::GetTime(), categories[0], 
+            packets.data()->direction, packets.data()->function, packets.data()->details, packets.data()->dataHex);
+        /*for (const auto& packet : packets)
+        {
+            log.AddLog("[%s] [%s] %s %s", categories[0], packet.timestamp.c_str(),
+                packet.function.c_str(), packet.details.c_str());
+        }*/
+    }
+  
+    ImGui::End();
+
+    log.Draw("PacketTracer: Communication traffic", &state.show_packet_tracer_window);
+}
 
 #ifndef DEBUG_TEST
 void GuiWindows::ShowPacketTracerWindow(AppState& state) {

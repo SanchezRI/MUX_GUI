@@ -29,5 +29,4 @@ namespace GuiWindows {
 
     // Packet Tracer window (only commutator)
     void ShowPacketTracerWindow(AppState& state);
-    void ShowPacketTracerWindow(bool* p_open);
 }
