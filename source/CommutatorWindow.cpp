@@ -107,17 +107,17 @@ void GuiWindows::ShowMultiplexerWindow(AppState& state) {
             ImGui::SameLine(); ImGui::NextColumn();
             if (ImGui::Button("Set 1.2 x 2.1 port")) {
                 modbus.writeSingleRegister(10, 13, 1);
-                std::cout << "Callback: Seting 1.2 x 2.1 port" << std::endl;
+                modbus.getPacketLog();
             }
             ImGui::SameLine(); ImGui::NextColumn();
             if (ImGui::Button("Set 1.3 x 2.1 port")) {
                 modbus.writeSingleRegister(10, 14, 1);
-                std::cout << "Callback: Seting 1.3 x 2.1 port" << std::endl;
+                modbus.getPacketLog();
             }
             ImGui::SameLine(); ImGui::NextColumn();
             if (ImGui::Button("Set 1.4 x 2.1 port")) {
                 modbus.writeSingleRegister(10, 15, 1);
-                std::cout << "Callback: Seting 1.4 x 2.1 port" << std::endl;
+                modbus.getPacketLog();
             }
             ImGui::EndGroup();
 
@@ -126,22 +126,22 @@ void GuiWindows::ShowMultiplexerWindow(AppState& state) {
             ImGui::BeginGroup(); ImGui::NextColumn();
             if (ImGui::Button("Set 1.1 x 2.2 port")) {
                 modbus.writeSingleRegister(10, 16, 1);
-                std::cout << "Callback: Seting 1.1 x 2.2 port" << std::endl;
+                modbus.getPacketLog();
             }
             ImGui::SameLine(); ImGui::NextColumn();
             if (ImGui::Button("Set 1.2 x 2.2 port")) {
                 modbus.writeSingleRegister(10, 17, 1);
-                std::cout << "Callback: Seting 1.2 x 2.2 port" << std::endl;
+                modbus.getPacketLog();
             }
             ImGui::SameLine(); ImGui::NextColumn();
             if (ImGui::Button("Set 1.3 x 2.2 port")) {
                 modbus.writeSingleRegister(10, 18, 1);
-                std::cout << "Callback: Seting 1.3 x 2.2 port" << std::endl;
+                modbus.getPacketLog();
             }
             ImGui::SameLine(); ImGui::NextColumn();
             if (ImGui::Button("Set 1.4 x 2.2 port")) {
                 modbus.writeSingleRegister(10, 19, 1);
-                std::cout << "Callback: Seting 1.4 x 2.2 port" << std::endl;
+                modbus.getPacketLog();
             }
             ImGui::EndGroup();
 
@@ -150,22 +150,22 @@ void GuiWindows::ShowMultiplexerWindow(AppState& state) {
             ImGui::BeginGroup(); ImGui::NextColumn();
             if (ImGui::Button("Set 1.1 x 2.3 port")) {
                 modbus.writeSingleRegister(10, 32, 1);
-                std::cout << "Callback: Seting 1.1 x 2.3 port" << std::endl;
+                modbus.getPacketLog();
             }
             ImGui::SameLine(); ImGui::NextColumn();
             if (ImGui::Button("Set 1.2 x 2.3 port")) {
                 modbus.writeSingleRegister(10, 33, 1);
-                std::cout << "Callback: Seting 1.2 x 2.3 port" << std::endl;
+                modbus.getPacketLog();
             }
             ImGui::SameLine(); ImGui::NextColumn();
             if (ImGui::Button("Set 1.3 x 2.3 port")) {
                 modbus.writeSingleRegister(10, 34, 1);
-                std::cout << "Callback: Seting 1.3 x 2.3 port" << std::endl;
+                modbus.getPacketLog();
             }
             ImGui::SameLine(); ImGui::NextColumn();
             if (ImGui::Button("Set 1.4 x 2.3 port")) {
                 modbus.writeSingleRegister(10, 35, 1);
-                std::cout << "Callback: Seting 1.4 x 2.3 port" << std::endl;
+                modbus.getPacketLog();
             }
             ImGui::EndGroup();
 
@@ -174,22 +174,22 @@ void GuiWindows::ShowMultiplexerWindow(AppState& state) {
             ImGui::BeginGroup(); ImGui::NextColumn();
             if (ImGui::Button("Set 1.1 x 2.4 port")) {
                 modbus.writeSingleRegister(10, 48, 1);
-                std::cout << "Callback: Seting 1.1 x 2.4 port" << std::endl;
+                modbus.getPacketLog();
             }
             ImGui::SameLine(); ImGui::NextColumn();
             if (ImGui::Button("Set 1.2 x 2.4 port")) {
                 modbus.writeSingleRegister(10, 49, 1);
-                std::cout << "Callback: Seting 1.2 x 2.4 port" << std::endl;
+                modbus.getPacketLog();
             }
             ImGui::SameLine(); ImGui::NextColumn();
             if (ImGui::Button("Set 1.3 x 2.4 port")) {
                 modbus.writeSingleRegister(10, 50, 1);
-                std::cout << "Callback: Seting 1.3 x 2.4 port" << std::endl;
+                modbus.getPacketLog();
             }
             ImGui::SameLine(); ImGui::NextColumn();
             if (ImGui::Button("Set 1.4 x 2.4 port")) {
                 modbus.writeSingleRegister(10, 51, 1);
-                std::cout << "Callback: Seting 1.4 x 2.4 port" << std::endl;
+                modbus.getPacketLog();
             }
             ImGui::EndGroup();
             ImGui::EndTabItem();
@@ -202,22 +202,22 @@ void GuiWindows::ShowMultiplexerWindow(AppState& state) {
             ImGui::BeginGroup(); ImGui::NextColumn();
             if (ImGui::Button("Set 1 port")) {
                 modbus.writeSingleRegister(11, 0, 1);
-                std::cout << "Callback: Seting 1 port" << std::endl;
+                modbus.getPacketLog();
             }
             ImGui::SameLine(); ImGui::NextColumn();
             if (ImGui::Button("Set 2 port")) {
                 modbus.writeSingleRegister(11, 1, 1);
-                std::cout << "Callback: Seting 2 port" << std::endl;
+                modbus.getPacketLog();
             }
             ImGui::SameLine(); ImGui::NextColumn();
             if (ImGui::Button("Set 3 port")) {
                 modbus.writeSingleRegister(11, 2, 1);
-                std::cout << "Callback: Seting 3 port" << std::endl;
+                modbus.getPacketLog();
             }
             ImGui::SameLine(); ImGui::NextColumn();
             if (ImGui::Button("Set 4 port")) {
                 modbus.writeSingleRegister(11, 3, 1);
-                std::cout << "Callback: Seting 4 port" << std::endl;
+                modbus.getPacketLog();
             }
             ImGui::EndGroup();
 
@@ -226,22 +226,22 @@ void GuiWindows::ShowMultiplexerWindow(AppState& state) {
             ImGui::BeginGroup(); ImGui::NextColumn();
             if (ImGui::Button("Set 5 port")) {
                 modbus.writeSingleRegister(11, 4, 1);
-                std::cout << "Callback: Seting 5 port" << std::endl;
+                modbus.getPacketLog();
             }
             ImGui::SameLine(); ImGui::NextColumn();
             if (ImGui::Button("Set 6 port")) {
                 modbus.writeSingleRegister(11, 5, 1);
-                std::cout << "Callback: Seting 6 port" << std::endl;
+                modbus.getPacketLog();
             }
             ImGui::SameLine(); ImGui::NextColumn();
             if (ImGui::Button("Set 7 port")) {
                 modbus.writeSingleRegister(11, 6, 1);
-                std::cout << "Callback: Seting 7 port" << std::endl;
+                modbus.getPacketLog();
             }
             ImGui::SameLine(); ImGui::NextColumn();
             if (ImGui::Button("Set 8 port")) {
                 modbus.writeSingleRegister(11, 7, 1);
-                std::cout << "Callback: Seting 8 port" << std::endl;
+                modbus.getPacketLog();
             }
             ImGui::EndGroup();
             ImGui::EndTabItem();
@@ -259,166 +259,74 @@ void GuiWindows::ShowMultiplexerWindow(AppState& state) {
             /// In1 port
             ImGui::SeparatorText("Setters for In1 port");
             ImGui::BeginGroup(); ImGui::NextColumn();
-            if (ImGui::Button("Set In1xOut1 port")) {
-                std::cout << "Callback: Seting In1xOut1 port" << std::endl;
+            if (ImGui::Button("Set In1 x Out1 port")) {
+                modbus.writeSingleRegister(12, 1, 1);
+                modbus.getPacketLog();
             }
             ImGui::SameLine(); ImGui::NextColumn();
-            if (ImGui::Button("Set In1xOut2 port")) {
-                std::cout << "Callback: Seting In1xOut2 port" << std::endl;
+            if (ImGui::Button("Set In1 x Out2 port")) {
+                modbus.writeSingleRegister(12, 2, 1);
+                modbus.getPacketLog();
             }
             ImGui::SameLine(); ImGui::NextColumn();
-            if (ImGui::Button("Set In1xOut3 port")) {
-                std::cout << "Callback: Seting In1xOut3 port" << std::endl;
+            if (ImGui::Button("Set In1 x Out3 port")) {
+                modbus.writeSingleRegister(12, 3, 1);
+                modbus.getPacketLog();
             }
             ImGui::SameLine(); ImGui::NextColumn();
-            if (ImGui::Button("Set In1xOut4 port")) {
-                std::cout << "Callback: Seting In1xOut4 port" << std::endl;
+            if (ImGui::Button("Set In1 x Out4 port")) {
+                modbus.writeSingleRegister(12, 4, 1);
+                modbus.getPacketLog();
             }
             ImGui::SameLine(); ImGui::NextColumn();
-            if (ImGui::Button("Set In1xOut5 port")) {
-                std::cout << "Callback: Seting In1xOut5 port" << std::endl;
+            if (ImGui::Button("Set In1 x Out5 port")) {
+                modbus.writeSingleRegister(12, 5, 1);
+                modbus.getPacketLog();
             }
             ImGui::SameLine(); ImGui::NextColumn();
-            if (ImGui::Button("Set In1xOut6 port")) {
-                std::cout << "Callback: Seting In1xOut6 port" << std::endl;
+            if (ImGui::Button("Set In1 x Out6 port")) {
+                modbus.writeSingleRegister(12, 6, 1);
+                modbus.getPacketLog();
             }
             ImGui::EndGroup();
 
             /// In2 port
             ImGui::BeginGroup(); ImGui::NextColumn();
             ImGui::SeparatorText("Setters for In2 port");
-            if (ImGui::Button("Set In2xOut1 port")) {
-                std::cout << "Callback: Seting In2xOut1 port" << std::endl;
+            if (ImGui::Button("Set In2 x Out1 port")) {
+                modbus.writeSingleRegister(12, 17, 1);
+                modbus.getPacketLog();
             }
             ImGui::SameLine(); ImGui::NextColumn();
-            if (ImGui::Button("Set In2xOut2 port")) {
-                std::cout << "Callback: Seting In2xOut2 port" << std::endl;
+            if (ImGui::Button("Set In2 x Out2 port")) {
+                modbus.writeSingleRegister(12, 18, 1);
+                modbus.getPacketLog();
             }
             ImGui::SameLine(); ImGui::NextColumn();
-            if (ImGui::Button("Set In2xOut3 port")) {
-                std::cout << "Callback: Seting In2xOut3 port" << std::endl;
+            if (ImGui::Button("Set In2 x Out3 port")) {
+                modbus.writeSingleRegister(12, 19, 1);
+                modbus.getPacketLog();
             }
             ImGui::SameLine(); ImGui::NextColumn();
-            if (ImGui::Button("Set In2xOut4 port")) {
-                std::cout << "Callback: Seting In2xOut4 port" << std::endl;
+            if (ImGui::Button("Set In2 x Out4 port")) {
+                modbus.writeSingleRegister(12, 20, 1);
+                modbus.getPacketLog();
             }
             ImGui::SameLine(); ImGui::NextColumn();
-            if (ImGui::Button("Set In2xOut5 port")) {
-                std::cout << "Callback: Seting In2xOut5 port" << std::endl;
+            if (ImGui::Button("Set In2 x Out5 port")) {
+                modbus.writeSingleRegister(12, 21, 1);
+                modbus.getPacketLog();
             }
             ImGui::SameLine(); ImGui::NextColumn();
-            if (ImGui::Button("Set In2xOut6 port")) {
-                std::cout << "Callback: Seting In2xOut6 port" << std::endl;
+            if (ImGui::Button("Set In2 x Out6 port")) {
+                modbus.writeSingleRegister(12, 22, 1);
+                modbus.getPacketLog();
             }
             ImGui::EndGroup();
             ImGui::EndTabItem();
         }
         ImGui::EndTabBar();
     }
-
-    if (ImGui::BeginTabBar("MUXsTabBar", tab_bar_flags))
-    {
-        if (ImGui::BeginTabItem("PacketTracer"))
-        {
-            ImGui::Text("ModbusTCP Communication Tracer");
-            ImGui::Separator();
-
-            // Log controlling
-            if (ImGui::Button("Clear Log")) {
-                modbus.clearPacketLog();
-            } ImGui::SameLine();
-
-            static bool autoScroll = true;
-            ImGui::Checkbox("Auto-scroll", &autoScroll); ImGui::SameLine();
-            static bool showErrorsOnly = false;
-            ImGui::Checkbox("Show Errors Only", &showErrorsOnly); ImGui::SameLine();
-
-            // Filters
-            static bool showSent = true;
-            static bool showReceived = true;
-            ImGui::Checkbox("Show Sent", &showSent); ImGui::SameLine();
-            ImGui::Checkbox("Show Received", &showReceived); ImGui::SameLine();
-
-            ImGui::Separator();
-
-            // Table with packets
-            const float TEXT_BASE_HEIGHT = ImGui::GetTextLineHeightWithSpacing();
-            ImVec2 outer_size = ImVec2(0.0f, TEXT_BASE_HEIGHT * 15);
-
-            if (ImGui::BeginTable("PacketTable", 5,
-                ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg |
-                ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable, outer_size))
-            {
-                ImGui::TableSetupColumn("Time", ImGuiTableColumnFlags_WidthFixed, 120.0f);
-                ImGui::TableSetupColumn("Direction", ImGuiTableColumnFlags_WidthFixed, 80.0f);
-                ImGui::TableSetupColumn("Function", ImGuiTableColumnFlags_WidthFixed, 150.0f);
-                ImGui::TableSetupColumn("Details", ImGuiTableColumnFlags_WidthStretch);
-                ImGui::TableSetupColumn("Data (HEX)", ImGuiTableColumnFlags_WidthFixed, 200.0f);
-                ImGui::TableHeadersRow();
-
-                // Получаем копию лога через метод класса
-                auto packets = modbus.getPacketLog();
-                for (const auto& packet : packets)
-                {
-                    // Filtering
-                    if ((!showSent && packet.direction == "Sent") ||
-                        (!showReceived && packet.direction == "Received") ||
-                        (showErrorsOnly && !packet.isError))
-                        continue;
-
-                    ImGui::TableNextRow();
-
-                    // Time
-                    ImGui::TableSetColumnIndex(0);
-                    ImGui::Text("%s", packet.timestamp.c_str());
-
-                    // Direction
-                    ImGui::TableSetColumnIndex(1);
-                    if (packet.direction == "Sent") {
-                        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(100, 200, 255, 255));
-                    }
-                    else {
-                        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(100, 255, 100, 255));
-                    }
-                    ImGui::Text("%s", packet.direction.c_str());
-                    ImGui::PopStyleColor();
-
-                    // Function
-                    ImGui::TableSetColumnIndex(2);
-                    if (packet.isError) {
-                        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 100, 100, 255));
-                    }
-                    ImGui::Text("%s", packet.function.c_str());
-                    if (packet.isError) {
-                        ImGui::PopStyleColor();
-                    }
-
-                    // Details
-                    ImGui::TableSetColumnIndex(3);
-                    ImGui::Text("%s", packet.details.c_str());
-
-                    // Data
-                    ImGui::TableSetColumnIndex(4);
-                    ImGui::Text("%s", packet.dataHex.c_str());
-
-                    // Tooltip with ASCII view
-                    if (ImGui::IsItemHovered()) {
-                        ImGui::BeginTooltip();
-                        ImGui::Text("ASCII: %s", packet.dataAscii.c_str());
-                        ImGui::EndTooltip();
-                    }
-                }
-
-                // Autoscroll
-                if (autoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
-                    ImGui::SetScrollHereY(1.0f);
-
-                ImGui::EndTable();
-            }
-            ImGui::EndTabItem();
-        }
-    }
-    ImGui::EndTabBar();
 
     ImGui::Separator();
 

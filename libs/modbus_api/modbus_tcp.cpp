@@ -1,5 +1,6 @@
 ﻿//#define TEST_MODE
 #include "modbus_tcp.h"
+#include <format>
 
 /// Constructors and destructors
 
@@ -138,8 +139,6 @@ void ModbusTcp::addToPacketLog(const std::string & direction, const std::string 
 
     Packet packet;
 
-	std::cout << "Logging packet: " << direction << " - " << function << " - " << std::endl;
-
     // Get current time
     auto now = std::chrono::system_clock::now();
     auto now_time = std::chrono::system_clock::to_time_t(now);
@@ -210,10 +209,9 @@ std::string ModbusTcp::getFunctionName(uint8_t code) const {
 //}
 
 std::vector<ModbusTcp::Packet> ModbusTcp::getPacketLog() const {
-	// std::cout << "getPacketLog called. Number of packets: " << packet_log_.size() << std::endl;
 
 	for (const auto& packet : packet_log_) {
-		std::cout << "Packet - Time: " << packet.timestamp
+		std::cout << "Time: " << packet.timestamp
 			<< ", Direction: " << packet.direction
 			<< ", Function: " << packet.function
 			<< ", Details: " << packet.details
@@ -222,7 +220,6 @@ std::vector<ModbusTcp::Packet> ModbusTcp::getPacketLog() const {
 
 	return packet_log_;
 }
-
 
 void ModbusTcp::clearPacketLog() {
     std::lock_guard<std::mutex> lock(log_mutex_);

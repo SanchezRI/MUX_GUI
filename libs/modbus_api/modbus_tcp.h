@@ -5,6 +5,7 @@
 #include <string>
 #include <mutex>
 #include <functional>
+#include <format>
 #include <thread>
 #include <atomic>
 #include <sstream>
@@ -13,6 +14,7 @@
 #include <ctime>
 #include <iostream>
 #include <algorithm>
+#include "imgui.h"
 
 #ifdef _WIN32
 #include <winsock2.h>
@@ -63,8 +65,6 @@ public:
     // Packet logging
     std::vector<Packet> getPacketLog() const;
     void clearPacketLog();
-    void addToPacketLog(const std::string& direction, const std::string& function,
-        const std::vector<uint8_t>& data, bool isError = false);
 
 private:
     std::vector<uint16_t> readRegisters(uint8_t functionCode, uint16_t startAddr, uint16_t quantity, uint8_t unitId);
@@ -72,6 +72,8 @@ private:
     bool receiveResponse(uint8_t* buffer, size_t size);
     std::string getModbusErrorString(uint8_t code);
     std::string getFunctionName(uint8_t code) const;
+    void addToPacketLog(const std::string& direction, const std::string& function,
+        const std::vector<uint8_t>& data, bool isError = false);
 
     SOCKET socket_ = INVALID_SOCKET;
     std::string server_ip;
