@@ -34,31 +34,42 @@ void GuiWindows::ShowPacketTracerWindow(AppState& state) {
     ImGui::SetNextWindowSize(ImVec2(500, 400), ImGuiCond_FirstUseEver);
     ImGui::Begin("PacketTracer: Communication traffic", &state.show_packet_tracer_window);
 
-    const char* categories[3] = { "INFO", "WARNING", "ERROR"};
-    auto packets = state.modbus.getPacketLog();
+    //std::cout << "[DEBUG] COMMUTATOR CONNECTION STATUS: " << state.comm_connection << std::endl;
 
-    if (!state.modbus.isConnected()) {
-        if (packets.empty()) {
-            log.AddLog("[%.2f sec] {%s}: Please build connection with ModbusTCP server.\n", ImGui::GetTime(), categories[2]);
+    const char* categories[3] = { "INFO", "WARNING", "ERROR" };
+    auto packets = state.comm_modbus.getPacketLog();
+
+    if (!state.comm_connection && packets.empty()) {
+        log.AddLog("[%.2f sec] {%s}: Please build connection with ModbusTCP server.\n",
+            ImGui::GetTime(), categories[2]);
+    }
+    else if (state.comm_connection) {
+        if (!packets.empty()) {
+
+            /*for (const auto& packet : packets) {
+                log.AddLog("[%s] [%.2f sec] {%s} | %s | %s | %s | %s\n",
+                    packet.timestamp.c_str(), ImGui::GetTime(), categories[0],
+                    packet.direction.c_str(), packet.function.c_str(),
+                    packet.details.c_str(), packet.dataHex.c_str());
+            }*/
+
+            log.AddLog("[%s] [%.2f sec] {%s} | %s | %s | %s | %s | ", packets.data()->timestamp.c_str(),
+                ImGui::GetTime(), categories[0], packets.data()->direction.c_str(), 
+                packets.data()->function.c_str(), packets.data()->details.c_str(), packets.data()->dataHex.c_str());
         }
         else {
-            log.AddLog("[%s] [%.2f sec] {%s}: Failed connection to ModbusTCP server\n", packets.data()->timestamp, ImGui::GetTime(), categories[1]);
+            log.AddLog("[%.2f sec] {%s}: Connection established, but no packets yet.\n",
+                ImGui::GetTime(), categories[0]);
         }
     }
     else {
-        log.AddLog("[%s] [%.2f sec] {%s} | %s | %s | %s | %s | ", packets.data()->timestamp, ImGui::GetTime(), categories[0], 
-            packets.data()->direction, packets.data()->function, packets.data()->details, packets.data()->dataHex);
-        /*for (const auto& packet : packets)
-        {
-            log.AddLog("[%s] [%s] %s %s", categories[0], packet.timestamp.c_str(),
-                packet.function.c_str(), packet.details.c_str());
-        }*/
+        log.AddLog("[DEBUG]: Unknown state!\n");
     }
-  
-    ImGui::End();
 
     log.Draw("PacketTracer: Communication traffic", &state.show_packet_tracer_window);
+    ImGui::End();
 }
+
 
 #ifndef DEBUG_TEST
 void GuiWindows::ShowPacketTracerWindow(AppState& state) {
@@ -159,5 +170,31 @@ void GuiWindows::ShowPacketTracerWindow(AppState& state) {
     }
     ImGui::End();
 }
+
+//void GuiWindows::ShowPacketTracerWindow(AppState& state) {
+//    static PacketTracer log;
+//
+//    ImGui::SetNextWindowSize(ImVec2(500, 400), ImGuiCond_FirstUseEver);
+//    ImGui::Begin("PacketTracer: Communication traffic", &state.show_packet_tracer_window);
+//
+//    std::cout << "[DEBUG] COMMUTATOR CONNECTION STATUS: " << state.mux_connection << std::endl;
+//
+//    const char* categories[3] = { "INFO", "WARNING", "ERROR"};
+//    auto packets = state.modbus.getPacketLog();
+//
+//    if (state.mux_connection == false && packets.empty()) {
+//        log.AddLog("[%.2f sec] {%s}: Please build connection with ModbusTCP server.\n", ImGui::GetTime(), categories[2]);
+//    }
+//    else if (state.mux_connection == true) {
+//        log.AddLog("[%s] [%.2f sec] {%s} | %s | %s | %s | %s | ", packets.data()->timestamp.c_str(), 
+//            ImGui::GetTime(), categories[0], packets.data()->direction.c_str(), 
+//            packets.data()->function.c_str(), packets.data()->details.c_str(), packets.data()->dataHex.c_str());
+//    }
+//    else {
+//        log.AddLog("[DEBUG]: ZALUPA KAKAYA-TO!!!!!!!!!!!!!\n");
+//    }
+//    log.Draw("PacketTracer: Communication traffic", &state.show_packet_tracer_window);
+//    ImGui::End();
+//}
 
 #endif

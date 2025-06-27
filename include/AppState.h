@@ -6,7 +6,7 @@ struct AppState {
 
     // Slave windows main params [used in Master]
     bool show_adc_dac_window = false;
-    bool show_multiplexer_window = true;
+    bool show_commutator_window = true;
     bool show_packet_tracer_window = true;
 
     // ADC-DAC's params and states
@@ -14,9 +14,13 @@ struct AppState {
     bool adc_connection = false;
 
     // Commutator's params and states
-    bool mux_polling = false;
-    bool mux_connection = false;
-    ModbusTcp modbus;
+    bool comm_connection = false;
+    bool comm_polling = false;
+    bool mux_slot_id_1 = false;
+    bool mux_slot_id_2 = false;
+    bool mux_slot_id_3 = false;
+    bool mux_slot_id_4 = false;
+    ModbusTcp comm_modbus;
 
     // Window's style settings
     bool show_style_editor = false;

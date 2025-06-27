@@ -46,7 +46,7 @@ public:
 
     bool connect();
     void disconnect();
-    bool isConnected() const;
+    bool isConnected();
 
     // Modbus functions
     std::vector<bool> readCoils(uint16_t startAddr, uint16_t quantity, uint8_t unitId);
@@ -54,6 +54,8 @@ public:
     std::vector<uint16_t> readInputRegisters(uint16_t startAddr, uint16_t quantity, uint8_t unitId);
     bool writeSingleRegister(uint16_t addr, uint16_t value, uint8_t unitId);
     bool writeMultipleRegisters(uint16_t startAddr, const std::vector<uint16_t>& values, uint8_t unitId);
+    std::string processRegisters(const std::vector<uint16_t>& registers,
+        size_t startPos, size_t length, bool reverseBytes);
 
     // Polling
     void startPolling(uint16_t startAddr, uint16_t quantity,

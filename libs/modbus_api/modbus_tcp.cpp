@@ -73,22 +73,22 @@ void ModbusTcp::disconnect() {
     }
 }
 
-bool ModbusTcp::isConnected() const {
-    if (socket_ == INVALID_SOCKET) return false;
+bool ModbusTcp::isConnected() {
+	if (socket_ == INVALID_SOCKET) return false;
 
-    char buf;
-    int err = recv(socket_, &buf, 1, MSG_PEEK);
-    if (err == SOCKET_ERROR) {
+	char buf;
+	int err = recv(socket_, &buf, 1, MSG_PEEK);
+	if (err == SOCKET_ERROR) {
 #ifdef _WIN32
-        if (WSAGetLastError() != WSAEWOULDBLOCK) {
+		if (WSAGetLastError() != WSAEWOULDBLOCK) {
 #else
-        if (errno != EWOULDBLOCK) {
+		if (errno != EWOULDBLOCK) {
 #endif
-            return false;
-        }
-        }
-    return true;
-    }
+			return false;
+		}
+	}
+	return true;
+}
 
 bool ModbusTcp::sendRequest(const std::vector<uint8_t>& request) {
 	if (send(socket_, reinterpret_cast<const char*>(request.data()), request.size(), 0) == SOCKET_ERROR) {
@@ -210,7 +210,7 @@ std::string ModbusTcp::getFunctionName(uint8_t code) const {
 std::vector<ModbusTcp::Packet> ModbusTcp::getPacketLog() const {
 
 	for (const auto& packet : packet_log_) {
-		std::cout << "Time: " << packet.timestamp
+		std::cout << "[DEBUG] " << "Time: " << packet.timestamp
 			<< ", Direction: " << packet.direction
 			<< ", Function: " << packet.function
 			<< ", Details: " << packet.details
@@ -461,6 +461,30 @@ std::vector<uint16_t> ModbusTcp::readHoldingRegisters(uint16_t startAddr, uint16
 
 std::vector<uint16_t> ModbusTcp::readInputRegisters(uint16_t startAddr, uint16_t quantity, uint8_t unitId = 1) {
 	return readRegisters(0x04, startAddr, quantity, unitId);
+}
+
+std::string ModbusTcp::processRegisters(const std::vector<uint16_t>& registers,
+	size_t startPos, size_t length, bool reverseBytes) {
+	std::stringstream hexStream;
+
+	for (uint16_t reg : registers) {
+		if (reverseBytes) {
+			reg = (reg >> 8) | (reg << 8);
+		}
+		hexStream << std::hex << std::setw(4) << std::setfill('0') << reg;
+	}
+
+	std::string hexString = hexStream.str();
+
+	if (startPos >= hexString.length()) {
+		return "";
+	}
+
+	if (startPos + length > hexString.length()) {
+		length = hexString.length() - startPos;
+	}
+
+	return hexString.substr(startPos, length);
 }
 
 //// Tests

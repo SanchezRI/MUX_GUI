@@ -74,7 +74,7 @@ void GuiWindows::ShowMainWindow(AppState& state) {
     ImGui::SameLine(); ImGui::Button("Show ADC description");
     ImGui::SetItemTooltip("This is Analog digital converter + Digital Analog converter module");
 
-    ImGui::Checkbox("Open Commutator MUX", &state.show_multiplexer_window);
+    ImGui::Checkbox("Open Commutator MUX", &state.show_commutator_window);
     ImGui::SetItemTooltip("Opens multiplexer's management window");
     ImGui::SameLine(); ImGui::Button("Show MUX description");
     ImGui::SetItemTooltip("This is Multiplexer module");
@@ -85,6 +85,20 @@ void GuiWindows::ShowMainWindow(AppState& state) {
     ImGui::SetItemTooltip("This is packet tracer feature");
 
     ImGui::ProgressBar(-1.0f * (float)ImGui::GetTime(), ImVec2(0.0f, 0.0f), "Searching..");
+
+    ImGui::Text(" \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+
+    static float wrap_width = 250.0f;
+    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+    ImVec2 pos = ImGui::GetCursorScreenPos();
+    ImVec2 marker_min = ImVec2(pos.x + wrap_width, pos.y);
+    ImVec2 marker_max = ImVec2(pos.x + wrap_width + 10, pos.y + ImGui::GetTextLineHeight());
+    ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + wrap_width);
+    ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "Developed by Max Golubev, JINR\nLaboratory of High Energy Physics");
+
+    draw_list->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(255, 0, 255, 255));
+    ImGui::PopTextWrapPos();
+
 
     ImGui::End();
 }
