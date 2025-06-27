@@ -27,7 +27,7 @@ ________________________________________________________________________________
 ### Building from source
 1. Go to my remote repository [MUX_GUI](https://git.jinr.ru/SanchezRIwork/MUX_GUI/-/tree/master?ref_type=heads) and choose required branch:
    - ***master***: main branch, stable release of app
-   - ***refactor***: bug fixes, testing, pre-release of app <br>
+   - ***develop***: bug fixes, testing, pre-release of app <br>
    You also can see release tags (Example ***v5.2***)
 2. Clone repository with command ```git clone <repos URL>```
 3. Open ```Visual Studio 2022``` -> ```Open Folder``` -> ```path/to/MUX_GUI```
@@ -40,19 +40,24 @@ ________________________________________________________________________________
 1. Run ***MUX_GUI.exe***
 2. Manage and control your device (or devices)!
 ### UserFlow
+1. Connect your device to PoE-Switch
+2. Click on "Connect" button
+3. Change IP-address, port-number and UnitID if this necessary
+4. Browse for your MUX below basic parameters
+5. Change ports by clicking on relevant buttons
+6. When done with device, click on "Disconnect" and close the program
 
 ## Devices
 ______________________________________________________________________________________________
 - [AdcDacDevice repository (Development)]()
 - [CommutatorDevice repository (Windows)](https://git.jinr.ru/SanchezRIwork/CommutatorDevice)
 
-## MultiViewports
-______________________________________________________________________________________________
-
 ## Gallery
 ______________________________________________________________________________________________
-Here is GUI for Commutator Device:
-![MUX GUI Interface](../MUX_GUI/include/images/mux_gui_2.png "MUX GUI main Window")
-Packets between Commutator Device and Master Device^^
-![MUX_GUI Console](../MUX_GUI/include/images/packets_mux_gui.png "MUX GUI Console packets")
+Here is GUI for Commutator Device [MUX (2 &rarr; 6)]<br>:
+![MUX GUI Interface](../MUX_GUI/include/images/mux_gui_5.png "MUX GUI main Window")<br>
+Here is GUI for Commutator Device [MUX 2x(4 &rarr; 1)]:<br>
+![MUX GUI Interface](../MUX_GUI/include/images/mux_gui_6.png "MUX GUI main Window")<br>
+Packets between Commutator Device and Master Device:<br>
+![MUX_GUI Console](../MUX_GUI/include/images/packets_mux_gui.png "MUX GUI Console packets")<br>
 
