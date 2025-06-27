@@ -1,4 +1,4 @@
-﻿//#define TEST_MODE
+﻿//#define DEBUG
 #include "modbus_tcp.h"
 
 /// Constructors and destructors
@@ -488,7 +488,7 @@ std::string ModbusTcp::processRegisters(const std::vector<uint16_t>& registers,
 }
 
 //// Tests
-#ifdef TEST_MODE
+#ifdef DEBUG
 int main() {
     try {
         ModbusTcp client("192.168.127.254", 502, 3000);

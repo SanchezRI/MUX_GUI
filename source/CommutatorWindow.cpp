@@ -1,4 +1,4 @@
-﻿// #define DEBUG
+﻿//#define DEBUG
 #include "GuiWindows.h"
 
 //////////////////////////////////// Multiplexers (Commutator window) ////////////////////////////////////
@@ -399,6 +399,53 @@ void GuiWindows::ShowMultiplexerWindow(AppState& state) {
         if (state.mux_slot_id_4 && ImGui::BeginTabItem("4 x 2 --> 1 pors MUX"))
         {
             ImGui::Text("This is the MUX with ID = 4 tab!");
+
+            ImGui::SeparatorText("Setters for 1 - 2 blocks");
+            ImGui::BeginGroup(); ImGui::NextColumn();
+            if (ImGui::Button("Set 1.1 port")) {
+                comm_modbus.writeSingleRegister(11, 415, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set 1.2 port")) {
+                comm_modbus.writeSingleRegister(11, 977, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set 2.1 port")) {
+                comm_modbus.writeSingleRegister(11, 45641, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set 2.2 port")) {
+                comm_modbus.writeSingleRegister(11, 47893, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::EndGroup();
+
+            ImGui::SeparatorText("Setters for 3 - 4 blocks");
+            ImGui::BeginGroup(); ImGui::NextColumn();
+            if (ImGui::Button("Set 3.1 port")) {
+                comm_modbus.writeSingleRegister(11, 354, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set 3.2 port")) {
+                comm_modbus.writeSingleRegister(11, 989, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set 4.1 port")) {
+                comm_modbus.writeSingleRegister(11, 3186, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set 4.2 port")) {
+                comm_modbus.writeSingleRegister(11, 8979, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::EndGroup();
+
             ImGui::EndTabItem();
         }
 

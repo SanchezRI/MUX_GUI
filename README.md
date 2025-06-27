@@ -15,7 +15,7 @@ ________________________________________________________________________________
 - [ImPlot](https://github.com/epezent/implot)
 - [GLFW3](https://www.glfw.org/)
 - [OpenGL3](https://www.opengl.org/)
-- [ModbusTCP]()
+- [ModbusTCP](https://www.simplymodbus.ca/TCP.htm)
 
 ## Installation
 _____________________________________________________________________________________________________
@@ -51,7 +51,8 @@ ________________________________________________________________________________
 
 ## Gallery
 ______________________________________________________________________________________________
-
-
-
+Here is GUI for Commutator Device:
+![MUX GUI Interface](../MUX_GUI/include/images/mux_gui_2.png "MUX GUI main Window")
+Packets between Commutator Device and Master Device^^
+![MUX_GUI Console](../MUX_GUI/include/images/packets_mux_gui.png "MUX GUI Console packets")
 

@@ -1,4 +1,4 @@
-﻿#define DEBUG_TEST
+﻿//#define DEBUG
 #include "GuiWindows.h"
 
 struct PacketTracer
@@ -34,7 +34,9 @@ void GuiWindows::ShowPacketTracerWindow(AppState& state) {
     ImGui::SetNextWindowSize(ImVec2(500, 400), ImGuiCond_FirstUseEver);
     ImGui::Begin("PacketTracer: Communication traffic", &state.show_packet_tracer_window);
 
-    //std::cout << "[DEBUG] COMMUTATOR CONNECTION STATUS: " << state.comm_connection << std::endl;
+#ifdef DEBUG
+    std::cout << "[DEBUG] COMMUTATOR CONNECTION STATUS: " << state.comm_connection << std::endl;
+#endif
 
     const char* categories[3] = { "INFO", "WARNING", "ERROR" };
     auto packets = state.comm_modbus.getPacketLog();
@@ -71,7 +73,7 @@ void GuiWindows::ShowPacketTracerWindow(AppState& state) {
 }
 
 
-#ifndef DEBUG_TEST
+#ifdef DEBUG
 void GuiWindows::ShowPacketTracerWindow(AppState& state) {
     ImGui::Begin("Packet Tracer", &state.show_packet_tracer_window);
     ImGui::Text("ModbusTCP Communication Tracer");
