@@ -55,9 +55,9 @@ ________________________________________________________________________________
 ## Gallery
 ______________________________________________________________________________________________
 Here is GUI for Commutator Device [MUX (2 &rarr; 6)]<br>:
-![MUX GUI Interface](./include/images/mux_gui_5.png "MUX GUI main Window")<br>
+![MUX GUI Interface](./include/images/mux_gui_5.PNG "MUX GUI main Window")<br>
 Here is GUI for Commutator Device [MUX 2x(4 &rarr; 1)]:<br>
-![MUX GUI Interface](./include/images/mux_gui_6.png "MUX GUI main Window")<br>
+![MUX GUI Interface](./include/images/mux_gui_6.PNG "MUX GUI main Window")<br>
 Packets between Commutator Device and Master Device:<br>
 ![MUX_GUI Console](./include/images/packets_mux_gui.png "MUX GUI Console packets")<br>
 
