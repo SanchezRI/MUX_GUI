@@ -1,6 +1,9 @@
-#include "RenderSystem.h"
+﻿#include "RenderSystem.h"
 #include "icon.h"
+#include <direct.h>
 #include <iostream>
+#include <fstream>
+#include <cstring>
 
 // Scatic var for store window's state
 static GLFWwindow* s_Window = nullptr;
@@ -40,7 +43,33 @@ bool RenderSystem::Initialize(int width, int height, const char* title) {
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-    io.Fonts->AddFontFromFileTTF("C:/Users/max-tango/Documents/MUX_GUI/include/fonts/hpsimplified_bold.ttf", 22);
+
+    std::string fontRelPath = "/MUX_GUI/include/fonts/hpsimplified_bold.ttf";
+
+    char buffer[FILENAME_MAX];
+    _getcwd(buffer, FILENAME_MAX);
+    std::string currentPath(buffer);
+    std::cout << "Current working directory: " << currentPath << std::endl;
+
+    // Search fot 'MUX_GUI' in current path
+    std::string prefix = "MUX_GUI";
+    size_t pos = currentPath.find(prefix);
+
+    if (pos != std::string::npos) {
+        std::string basePath = currentPath.substr(0, pos);
+        std::string fontPath = basePath + fontRelPath.substr(1);
+
+        std::ifstream file(fontPath);
+        if (!file) {
+            std::cerr << "Font file not found: " << fontPath << std::endl;
+        }
+        else {
+            io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 22);
+        }
+    }
+    else {
+        std::cerr << "'MUX_GUI' not found in current path." << std::endl;
+    }
 
     // ImGui style
     ImGui::StyleColorsClassic();
