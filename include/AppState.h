@@ -1,6 +1,7 @@
 #pragma once
 #include "imgui.h"
 #include "modbus_tcp.h"
+#include "GuiWindows.h"
 
 struct AppState {
 
@@ -21,8 +22,13 @@ struct AppState {
     bool mux_slot_id_3 = false;
     bool mux_slot_id_4 = false;
     ModbusTcp comm_modbus;
+    bool show_comm_progress_popup = false;
+    float comm_progress = 0.0f;
+    std::future<void> comm_connection_future;
+    bool comm_connection_success = false;
+    std::string comm_error_message;
 
-    // Window's style settings
+    // GUI Window's style settings
     bool show_style_editor = false;
     ImGuiWindowFlags window_flags = 0;
     bool no_titlebar = false;

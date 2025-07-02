@@ -138,7 +138,7 @@ void GuiWindows::ShowMainWindow(AppState& state) {
 		};
 
 		static RegisterInfo registers[] = {
-			{"0x0002", "MUX_TYPES", "R", "Input identify reg\n ID0 - Slot is empty\n ID1 - MUX (2-->6)\n ID2 - MUX 2x(4-->1)\n ID3 - MUX (8-->1)\n ID4 - MUX 4x(2-->1)", false},
+			{"0x0002", "MUX_TYPES", "R", "Input Identify reg\n ID0 - Slot is empty\n ID1 - MUX (2-->6)\n ID2 - MUX 2x(4-->1)\n ID3 - MUX (8-->1)\n ID4 - MUX 4x(2-->1)", false},
 			{"0x000A", "CTRL_REG1", "R/W", "Holding Control reg\n    Right slot", true},
 			{"0x000B", "CTRL_REG2", "R/W", "Holding Control reg\n   Middle slot", true},
 			{"0x000C", "CTRL_REG3", "R/W", "Holding Control reg\n     Left slot", true},

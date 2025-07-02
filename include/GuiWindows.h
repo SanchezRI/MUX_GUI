@@ -5,8 +5,7 @@
 #pragma once
 #include <cmath>
 #include <cstdlib>
-#include <algorithm>
-#include <iostream>
+#include <future>
 #include "imgui.h"
 #include "implot.h"
 #include "AppState.h"
