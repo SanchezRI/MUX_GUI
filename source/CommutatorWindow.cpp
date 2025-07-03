@@ -1,4 +1,4 @@
-﻿//#define DEBUG
+﻿#define DEBUG
 #include "GuiWindows.h"
 
 //////////////////////////////////// Multiplexers (Commutator window) ////////////////////////////////////
