@@ -66,10 +66,6 @@ add_executable(MUX_GUI
     ${MODBUS_TCP_DIR}/modbus_tcp.cpp            # Modbus executable file
     ${SOURCE_DIR_PATH}/RenderSystem.cpp         # Render logic of all windows
     ${SOURCE_DIR_PATH}/GuiWindows.cpp           # Master window and LimeSDR slave window
-    ${SOURCE_DIR_PATH}/AdcDacWindow.cpp         # Analog Digital Converter slave window
-    ${SOURCE_DIR_PATH}/CommutatorWindow.cpp     # Commutator / Multiplexer slave window
-    ${SOURCE_DIR_PATH}/StyleEditorWindow.cpp    # Style Editor Window for all styling
-    ${SOURCE_DIR_PATH}/PacketTracerWindow.cpp   # Packet Tracer window
     ${RESOURCE_DIR_PATH}/resources.rc           # Icons and other stuff
     ${RESOURCE_DIR_PATH}/resource.cpp           # Icons and other stuff
 )

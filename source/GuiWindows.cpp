@@ -9,186 +9,459 @@ void GuiWindows::ShowMainWindow(AppState& state) {
 	ImGuiViewport* viewport = ImGui::GetMainViewport();
 
 	ImGui::SetNextWindowPos(viewport->Pos);
-	ImGui::SetNextWindowSize(ImVec2(viewport->Size.x * 0.33f, viewport->Size.y));
+	ImGui::SetNextWindowSize(ImVec2(viewport->Size.x * 1.0f, viewport->Size.y));
 
-	ImGui::Begin("Devices main window", nullptr, state.window_flags);
-	ImGui::SeparatorText("This is master window. All windows settings near");
+    ModbusTcp comm_modbus("192.168.127.254", 502, 3000);
 
-	if (ImGui::TreeNode("Window's settings"))
-	{
-		ImGui::BulletText("Here is settings to all windows of application.\nAll of setting apply only for one session\n and doesn't never save");
+    ImGui::Begin("Commutator", &state.show_commutator_window, state.window_flags);
+    ImGui::Text("Here is Commutator window. That controls Multiplexers in commutator unit.");
 
-		ImGui::Bullet();
-		ImGui::Checkbox("No titlebar", &state.no_titlebar);
-		if (state.no_titlebar)        state.window_flags |= ImGuiWindowFlags_NoTitleBar;
+    // Connection and Popup
+    if (ImGui::Button("Connect"))
+        ImGui::OpenPopup("Connect?"); ImGui::SameLine(); ImGui::SetItemTooltip("Connect to MUX-device...");
 
-		ImGui::SameLine();
-		ImGui::Checkbox("No scrollbar", &state.no_scrollbar);
-		if (state.no_scrollbar)       state.window_flags |= ImGuiWindowFlags_NoScrollbar;
+    ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+    std::vector<uint16_t> input_reg;
+    ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 
-		ImGui::SameLine();
-		ImGui::Checkbox("No menu", &state.no_menu);
-		if (!state.no_menu)           state.window_flags |= ImGuiWindowFlags_MenuBar;
+    if (ImGui::BeginPopupModal("Connect?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        ImGui::Text("Connect to MUX-device?");
+        ImGui::Separator();
 
-		ImGui::Bullet();
-		ImGui::Checkbox("No move", &state.no_move);
-		if (state.no_move)            state.window_flags |= ImGuiWindowFlags_NoMove;
+        if (ImGui::Button("OK", ImVec2(120, 0))) {
+            try {
+                comm_modbus.connect();
+                state.comm_connection = true;
 
-		ImGui::SameLine();
-		ImGui::Checkbox("No resize", &state.no_resize);
-		if (state.no_resize)          state.window_flags |= ImGuiWindowFlags_NoResize;
+                input_reg = comm_modbus.readInputRegisters(2, 1, 1);
 
-		ImGui::SameLine();
-		ImGui::Checkbox("No collapse", &state.no_collapse);
-		if (state.no_collapse)        state.window_flags |= ImGuiWindowFlags_NoCollapse;
+                if (comm_modbus.processRegisters(input_reg, 1, 1, false) == ("1")
+                    || comm_modbus.processRegisters(input_reg, 2, 1, false) == ("1")
+                    || comm_modbus.processRegisters(input_reg, 3, 1, false) == ("1")) {
+                    state.mux_slot_id_1 = true;
+                }
+                else {
+                    state.mux_slot_id_1 = false;
+                }
 
-		ImGui::Bullet();
-		ImGui::Checkbox("No navigation", &state.no_nav);
-		if (state.no_nav)             state.window_flags |= ImGuiWindowFlags_NoNav;
+                if (comm_modbus.processRegisters(input_reg, 1, 1, false) == ("2")
+                    || comm_modbus.processRegisters(input_reg, 2, 1, false) == ("2")
+                    || comm_modbus.processRegisters(input_reg, 3, 1, false) == ("2")) {
+                    state.mux_slot_id_2 = true;
+                }
+                else {
+                    state.mux_slot_id_2 = false;
+                }
 
-		ImGui::SameLine();
-		ImGui::Checkbox("No background", &state.no_background);
-		if (state.no_background)      state.window_flags |= ImGuiWindowFlags_NoBackground;
+                if (comm_modbus.processRegisters(input_reg, 1, 1, false) == ("3")
+                    || comm_modbus.processRegisters(input_reg, 2, 1, false) == ("3")
+                    || comm_modbus.processRegisters(input_reg, 3, 1, false) == ("3")) {
+                    state.mux_slot_id_3 = true;
+                }
+                else {
+                    state.mux_slot_id_3 = false;
+                }
 
-		ImGui::Bullet();
-		ImGui::Checkbox("No bring to front", &state.no_bring_to_front);
-		if (state.no_bring_to_front)  state.window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
+                if (comm_modbus.processRegisters(input_reg, 1, 1, false) == ("4")
+                    || comm_modbus.processRegisters(input_reg, 2, 1, false) == ("4")
+                    || comm_modbus.processRegisters(input_reg, 3, 1, false) == ("4")) {
+                    state.mux_slot_id_4 = true;
+                }
+                else {
+                    state.mux_slot_id_4 = false;
+                }
+            }
+            catch (const std::exception& err) {
+                state.comm_connection = false;
+            }
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::SetItemDefaultFocus(); ImGui::SameLine();
+        if (ImGui::Button("Cancel", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
+        ImGui::EndPopup();
+    }
 
-		ImGui::SameLine();
-		ImGui::Checkbox("No docking", &state.no_docking);
-		if (state.no_docking)         state.window_flags |= ImGuiWindowFlags_NoDocking;
+    // Disconnection
+    if (ImGui::Button("Disconnect"))
+        ImGui::OpenPopup("Disconnect?"); ImGui::SameLine(); ImGui::SetItemTooltip("Disconnect MUX-device");
 
-		ImGui::Bullet();
-		ImGui::Checkbox("Unsaved document", &state.unsaved_document);
-		if (state.unsaved_document)   state.window_flags |= ImGuiWindowFlags_UnsavedDocument;
+    if (ImGui::BeginPopupModal("Disconnect?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        ImGui::Text("Disconnect MUX-device?");
+        ImGui::Separator();
 
-		ImGui::TreePop();
-	}
+        if (ImGui::Button("OK", ImVec2(120, 0))) {
+            try {
+                comm_modbus.disconnect();
+                state.comm_connection = false;
+            }
+            catch (const std::exception& err) {
+                state.comm_connection = true;
+            }
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::SetItemDefaultFocus(); ImGui::SameLine();
+        if (ImGui::Button("Cancel", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
+        ImGui::EndPopup();
+    }
 
-	ImGui::Checkbox("Open Style Editor window", &state.show_style_editor);
+    // Status
+    ImGui::ColorButton("Commutator Status",
+        state.comm_connection ? ImVec4(0, 1, 0, 1) : ImVec4(1, 0, 0, 1),
+        ImGuiColorEditFlags_NoTooltip, ImVec2(25, 25)); ImGui::SameLine();
+    ImGui::Text("Commutator connection status: [%s]", state.comm_connection ? "Connected" : "Disconnected");
 
-	ImGui::SeparatorText("Devices list");
+    if (!state.comm_connection) {
+        ImGui::TextColored(ImVec4(1, 0, 0, 1), "Device is disconnected!");
+        ImGui::End();
+        return;
+    } ImGui::SameLine();
 
-	ImGui::Checkbox("Open ADC/DAC module ", &state.show_adc_dac_window);
-	ImGui::SetItemTooltip("Opens ADC/DAC Module's management window");
-	ImGui::SameLine(); ImGui::Button("Show ADC description");
-	ImGui::SetItemTooltip("This is Analog digital converter + Digital Analog converter module");
+#ifdef DEBUG
+    if (ImGui::Button("[DEBUG] INPUT REGISTER")) {
+        auto input_reg = comm_modbus.readInputRegisters(2, 1, 1);
+        std::cout << "=======" << std::endl;
+        std::cout << comm_modbus.processRegisters(input_reg, 1, 1, false) << std::endl;
+        std::cout << comm_modbus.processRegisters(input_reg, 2, 1, false) << std::endl;
+        std::cout << comm_modbus.processRegisters(input_reg, 3, 1, false) << std::endl;
+        std::cout << "=======" << std::endl;
+    }
+#endif // DEBUG
 
-	ImGui::Checkbox("Open Commutator MUX", &state.show_commutator_window);
-	ImGui::SetItemTooltip("Opens multiplexer's management window");
-	ImGui::SameLine(); ImGui::Button("Show MUX description");
-	ImGui::SetItemTooltip("This is Multiplexer module");
+    // Polling
+    if (ImGui::Checkbox("Polling", &state.comm_polling)) {
+        if (state.comm_polling == true) {
+            std::cout << "Callback: Turn on poll_command !!!!!" << std::endl;
+        }
+        else {
+            std::cout << "Callback: Turn off poll_command !!!!!" << std::endl;
+        }
+    } ImGui::SameLine();
 
-	ImGui::Checkbox("Open Packet Tracer PT ", &state.show_packet_tracer_window);
-	ImGui::SetItemTooltip("Opens multiplexer's packet tracer window");
-	ImGui::SameLine(); ImGui::Button("Show PT description");
-	ImGui::SetItemTooltip("This is packet tracer feature");
+    ImGui::ColorButton("MUX1 Status",
+        state.mux_slot_id_1 ? ImVec4(0, 1, 0, 1) : ImVec4(1, 0, 0, 1),
+        ImGuiColorEditFlags_NoTooltip, ImVec2(20, 20)); ImGui::SameLine();
+    ImGui::Text("MUX_ID = 1: [%s]", state.mux_slot_id_1 ? "Installed" : "Not Installed");
 
-	ImGui::ProgressBar(-1.0f * (float)ImGui::GetTime(), ImVec2(0.0f, 0.0f), "Searching..");
+    static char str0[128] = "192.168.127.254";
+    if (ImGui::InputText("IP-addr", str0, IM_ARRAYSIZE(str0))) {
+        std::cout << "Callback: New IP-adress: " << str0 << std::endl;
+    } ImGui::SameLine();
 
-    /// Table regs
-    static ImVec4 bg_color = ImVec4(0.06f, 0.06f, 0.06f, 1.00f);
-    static ImVec4 header_color = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
-    static ImVec4 row_bg_color = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
-    static ImVec4 row_bg_alt_color = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
-    static ImVec4 text_color = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-    static ImVec4 highlight_color = ImVec4(0.26f, 0.59f, 0.98f, 0.50f);
+    ImGui::ColorButton("MUX2 Status",
+        state.mux_slot_id_2 ? ImVec4(0, 1, 0, 1) : ImVec4(1, 0, 0, 1),
+        ImGuiColorEditFlags_NoTooltip, ImVec2(20, 20)); ImGui::SameLine();
+    ImGui::Text("MUX_ID = 2: [%s]", state.mux_slot_id_2 ? "Installed" : "Not Installed");
 
-	if (ImGui::CollapsingHeader("Color Settings")) {
-		ImGui::ColorEdit4("Background", (float*)&bg_color);
-		ImGui::ColorEdit4("Header", (float*)&header_color);
-		ImGui::ColorEdit4("Row BG", (float*)&row_bg_color);
-		ImGui::ColorEdit4("Row BG Alt", (float*)&row_bg_alt_color);
-		ImGui::ColorEdit4("Text", (float*)&text_color);
-		ImGui::ColorEdit4("Highlight", (float*)&highlight_color);
-	}
+    static int int0 = 502;
+    if (ImGui::InputInt("Port       ", &int0)) {
+        std::cout << "Callback: New port-number: " << int0 << std::endl;
+    } ImGui::SameLine();
 
-	ImGui::PushStyleColor(ImGuiCol_TableRowBg, row_bg_color);
-	ImGui::PushStyleColor(ImGuiCol_TableRowBgAlt, row_bg_alt_color);
-	ImGui::PushStyleColor(ImGuiCol_Text, text_color);
-	ImGui::PushStyleColor(ImGuiCol_Header, header_color);
-	ImGui::PushStyleColor(ImGuiCol_HeaderHovered, highlight_color);
-	ImGui::PushStyleColor(ImGuiCol_HeaderActive, highlight_color);
+    ImGui::ColorButton("MUX3 Status",
+        state.mux_slot_id_3 ? ImVec4(0, 1, 0, 1) : ImVec4(1, 0, 0, 1),
+        ImGuiColorEditFlags_NoTooltip, ImVec2(20, 20)); ImGui::SameLine();
+    ImGui::Text("MUX_ID = 3: [%s]", state.mux_slot_id_3 ? "Installed" : "Not Installed");
 
-	ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(8, 6));
-	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(2, 0));
+    static int int1 = 1;
+    if (ImGui::InputInt("Unit ID  ", &int1)) {
+        std::cout << "Callback: New Unit_ID: " << int1 << std::endl;
+    } ImGui::SameLine();
 
-	const float row_height = ImGui::GetTextLineHeight() + 12.0f;
-	const int visible_rows = 8;
-	const float table_height = row_height * (visible_rows + 0.5f);
+    ImGui::ColorButton("MUX4 Status",
+        state.mux_slot_id_4 ? ImVec4(0, 1, 0, 1) : ImVec4(1, 0, 0, 1),
+        ImGuiColorEditFlags_NoTooltip, ImVec2(20, 20)); ImGui::SameLine();
+    ImGui::Text("MUX_ID = 4: [%s]", state.mux_slot_id_4 ? "Installed" : "Not Installed");
 
-	if (ImGui::BeginTable("RegisterMap", 4,
-		ImGuiTableFlags_Borders |
-		ImGuiTableFlags_RowBg |
-		ImGuiTableFlags_ScrollY,
-		ImVec2(0, table_height))) {
+    // MUXES tabs
+    ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
+    if (ImGui::BeginTabBar("MUXsTabBar", tab_bar_flags))
+    {
+        if (state.mux_slot_id_1 && ImGui::BeginTabItem("1 x 2 --> 6 pors MUX"))
+        {
+            ImGui::Text("This is the MUX with ID = 1 tab!");
+            /// In1 port
+            ImGui::SeparatorText("Setters for In1 port");
+            ImGui::BeginGroup(); ImGui::NextColumn();
+            if (ImGui::Button("Set In1 x Out1")) {
+                comm_modbus.writeSingleRegister(12, 1, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set In1 x Out2")) {
+                comm_modbus.writeSingleRegister(12, 2, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set In1 x Out3")) {
+                comm_modbus.writeSingleRegister(12, 3, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set In1 x Out4")) {
+                comm_modbus.writeSingleRegister(12, 4, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set In1 x Out5")) {
+                comm_modbus.writeSingleRegister(12, 5, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set In1 x Out6")) {
+                comm_modbus.writeSingleRegister(12, 6, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::EndGroup();
 
-		ImGui::TableSetupColumn("Address", ImGuiTableColumnFlags_WidthFixed, 50.0f);
-		ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed); // ImGuiTableColumnFlags_WidthStretch
-		ImGui::TableSetupColumn("R/W", ImGuiTableColumnFlags_WidthFixed);
-		ImGui::TableSetupColumn("Description", ImGuiTableColumnFlags_WidthFixed, 130.0f);
-		ImGui::TableHeadersRow();
+            /// In2 port
+            ImGui::BeginGroup(); ImGui::NextColumn();
+            ImGui::SeparatorText("Setters for In2 port");
+            if (ImGui::Button("Set In2 x Out1")) {
+                comm_modbus.writeSingleRegister(12, 17, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set In2 x Out2")) {
+                comm_modbus.writeSingleRegister(12, 18, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set In2 x Out3")) {
+                comm_modbus.writeSingleRegister(12, 19, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set In2 x Out4")) {
+                comm_modbus.writeSingleRegister(12, 20, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set In2 x Out5")) {
+                comm_modbus.writeSingleRegister(12, 21, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set In2 x Out6")) {
+                comm_modbus.writeSingleRegister(12, 22, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::EndGroup();
+            ImGui::EndTabItem();
+        }
 
-		struct RegisterInfo {
-			const char* address;
-			const char* name;
-			const char* value;
-			const char* description;
-			bool highlight;
-		};
+        if (state.mux_slot_id_2 && ImGui::BeginTabItem("2 x 4 --> 1 ports MUX"))
+        {
+            ImGui::Text("This is the MUX with ID = 2 tab!");
+            /// 1.x-2.1 port
+            ImGui::SeparatorText("Setters for 1.* x 2.1 ports");
+            ImGui::BeginGroup(); ImGui::NextColumn();
+            if (ImGui::Button("Set 1.1 x 2.1 port")) {
+                comm_modbus.writeSingleRegister(10, 12, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set 1.2 x 2.1 port")) {
+                comm_modbus.writeSingleRegister(10, 13, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set 1.3 x 2.1 port")) {
+                comm_modbus.writeSingleRegister(10, 14, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set 1.4 x 2.1 port")) {
+                comm_modbus.writeSingleRegister(10, 15, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::EndGroup();
 
-		static RegisterInfo registers[] = {
-			{"0x0002", "MUX_TYPES", "R", "Input identify reg\n ID0 - Slot is empty\n ID1 - MUX (2-->6)\n ID2 - MUX 2x(4-->1)\n ID3 - MUX (8-->1)\n ID4 - MUX 4x(2-->1)", false},
-			{"0x000A", "CTRL_REG1", "R/W", "Holding Control reg\n    Right slot", true},
-			{"0x000B", "CTRL_REG2", "R/W", "Holding Control reg\n   Middle slot", true},
-			{"0x000C", "CTRL_REG3", "R/W", "Holding Control reg\n     Left slot", true},
-		};
+            /// 1.x-2.2 port
+            ImGui::SeparatorText("Setters for 1.* x 2.2 ports");
+            ImGui::BeginGroup(); ImGui::NextColumn();
+            if (ImGui::Button("Set 1.1 x 2.2 port")) {
+                comm_modbus.writeSingleRegister(10, 16, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set 1.2 x 2.2 port")) {
+                comm_modbus.writeSingleRegister(10, 17, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set 1.3 x 2.2 port")) {
+                comm_modbus.writeSingleRegister(10, 18, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set 1.4 x 2.2 port")) {
+                comm_modbus.writeSingleRegister(10, 19, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::EndGroup();
 
-		for (auto& reg : registers) {
-			ImGui::TableNextRow();
+            /// 1.x-2.3 port
+            ImGui::SeparatorText("Setters for 1.* x 2.3 ports");
+            ImGui::BeginGroup(); ImGui::NextColumn();
+            if (ImGui::Button("Set 1.1 x 2.3 port")) {
+                comm_modbus.writeSingleRegister(10, 32, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set 1.2 x 2.3 port")) {
+                comm_modbus.writeSingleRegister(10, 33, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set 1.3 x 2.3 port")) {
+                comm_modbus.writeSingleRegister(10, 34, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set 1.4 x 2.3 port")) {
+                comm_modbus.writeSingleRegister(10, 35, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::EndGroup();
 
-			if (reg.highlight) {
-				ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg1,
-					ImGui::GetColorU32(highlight_color));
-			}
+            /// 1.x-2.4 port
+            ImGui::SeparatorText("Setters for 1.* x 2.4 ports");
+            ImGui::BeginGroup(); ImGui::NextColumn();
+            if (ImGui::Button("Set 1.1 x 2.4 port")) {
+                comm_modbus.writeSingleRegister(10, 48, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set 1.2 x 2.4 port")) {
+                comm_modbus.writeSingleRegister(10, 49, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set 1.3 x 2.4 port")) {
+                comm_modbus.writeSingleRegister(10, 50, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set 1.4 x 2.4 port")) {
+                comm_modbus.writeSingleRegister(10, 51, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::EndGroup();
+            ImGui::EndTabItem();
+        }
+        if (state.mux_slot_id_3 && ImGui::BeginTabItem("1 x 8 --> 1 ports MUX"))
+        {
+            ImGui::Text("This is the MUX with ID = 3 tab!");
+            /// 1-4 port
+            ImGui::SeparatorText("Setters for 1 - 4 ports");
+            ImGui::BeginGroup(); ImGui::NextColumn();
+            if (ImGui::Button("Set 1 port")) {
+                comm_modbus.writeSingleRegister(11, 0, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set 2 port")) {
+                comm_modbus.writeSingleRegister(11, 1, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set 3 port")) {
+                comm_modbus.writeSingleRegister(11, 2, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set 4 port")) {
+                comm_modbus.writeSingleRegister(11, 3, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::EndGroup();
 
-			// Address column
-			ImGui::TableSetColumnIndex(0);
-			ImGui::Text("%s", reg.address);
+            /// 5-8 port
+            ImGui::SeparatorText("Setters for 5 - 8 ports");
+            ImGui::BeginGroup(); ImGui::NextColumn();
+            if (ImGui::Button("Set 5 port")) {
+                comm_modbus.writeSingleRegister(11, 4, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set 6 port")) {
+                comm_modbus.writeSingleRegister(11, 5, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set 7 port")) {
+                comm_modbus.writeSingleRegister(11, 6, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set 8 port")) {
+                comm_modbus.writeSingleRegister(11, 7, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::EndGroup();
+            ImGui::EndTabItem();
+        }
 
-			// Name column
-			ImGui::TableSetColumnIndex(1);
-			ImGui::Text("%s", reg.name);
+        if (state.mux_slot_id_4 && ImGui::BeginTabItem("4 x 2 --> 1 pors MUX"))
+        {
+            ImGui::Text("This is the MUX with ID = 4 tab!");
 
-			// Value column
-			ImGui::TableSetColumnIndex(2);
-			ImGui::Text("%s", reg.value);
+            ImGui::SeparatorText("Setters for 1 - 2 blocks");
+            ImGui::BeginGroup(); ImGui::NextColumn();
+            if (ImGui::Button("Set 1.1 port")) {
+                comm_modbus.writeSingleRegister(11, 415, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set 1.2 port")) {
+                comm_modbus.writeSingleRegister(11, 977, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set 2.1 port")) {
+                comm_modbus.writeSingleRegister(11, 45641, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set 2.2 port")) {
+                comm_modbus.writeSingleRegister(11, 47893, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::EndGroup();
 
-			// Description column
-			ImGui::TableSetColumnIndex(3);
-			ImGui::Text("%s", reg.description);
-		}
+            ImGui::SeparatorText("Setters for 3 - 4 blocks");
+            ImGui::BeginGroup(); ImGui::NextColumn();
+            if (ImGui::Button("Set 3.1 port")) {
+                comm_modbus.writeSingleRegister(11, 354, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set 3.2 port")) {
+                comm_modbus.writeSingleRegister(11, 989, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set 4.1 port")) {
+                comm_modbus.writeSingleRegister(11, 3186, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::SameLine(); ImGui::NextColumn();
+            if (ImGui::Button("Set 4.2 port")) {
+                comm_modbus.writeSingleRegister(11, 8979, 1);
+                comm_modbus.getPacketLog();
+            }
+            ImGui::EndGroup();
 
-		ImGui::EndTable();
-	}
+            ImGui::EndTabItem();
+        }
 
-	ImGui::PopStyleVar(2);
-	ImGui::PopStyleColor(6);
+        ImGui::EndTabBar();
+    }
 
-	ImGui::Text("\n\n");
+    ImGui::Separator();
 
-	static float wrap_width = 250.0f;
-	ImDrawList* draw_list = ImGui::GetWindowDrawList();
-	ImVec2 pos = ImGui::GetCursorScreenPos();
-	ImVec2 marker_min = ImVec2(pos.x + wrap_width, pos.y);
-	ImVec2 marker_max = ImVec2(pos.x + wrap_width + 10, pos.y + ImGui::GetTextLineHeight());
-	ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + wrap_width);
-	ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "Developed by Max Golubev, JINR\nLaboratory of High Energy Physics");
-
-	draw_list->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(255, 0, 255, 255));
-	ImGui::PopTextWrapPos();
-
-
-	ImGui::End();
+    ImGui::End();
 }
 /////////////////////////////////////////////// END MAIN ////////////////////////////////////////////////
