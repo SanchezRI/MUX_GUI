@@ -1,4 +1,4 @@
-﻿//#define TEST_MODE
+﻿//#define DEBUG
 #include "modbus_tcp.h"
 
 /// Constructors and destructors
@@ -73,22 +73,65 @@ void ModbusTcp::disconnect() {
     }
 }
 
-bool ModbusTcp::isConnected() const {
-    if (socket_ == INVALID_SOCKET) return false;
+#ifdef DEBUG
+bool ModbusTcp::isConnected() {
+	if (socket_ == INVALID_SOCKET) return false;
 
-    char buf;
-    int err = recv(socket_, &buf, 1, MSG_PEEK);
-    if (err == SOCKET_ERROR) {
+	char buf;
+	int err = recv(socket_, &buf, 1, MSG_PEEK);
+	if (err == SOCKET_ERROR) {
 #ifdef _WIN32
-        if (WSAGetLastError() != WSAEWOULDBLOCK) {
+		if (WSAGetLastError() != WSAEWOULDBLOCK) {
 #else
-        if (errno != EWOULDBLOCK) {
+		if (errno != EWOULDBLOCK) {
 #endif
-            return false;
-        }
-        }
-    return true;
-    }
+			return false;
+		}
+	}
+	return true;
+}
+#endif
+
+bool ModbusTcp::isConnected() {
+	if (socket_ == INVALID_SOCKET) {
+		return false;
+	}
+
+	fd_set read_fds;
+	FD_ZERO(&read_fds);
+	FD_SET(socket_, &read_fds);
+
+	fd_set error_fds;
+	FD_ZERO(&error_fds);
+	FD_SET(socket_, &error_fds);
+
+	timeval timeout;
+	timeout.tv_sec = 0;
+	timeout.tv_usec = 0;
+
+	int select_result = select(
+		static_cast<int>(socket_) + 1,
+		&read_fds,
+		nullptr,
+		&error_fds,
+		&timeout
+	);
+
+	if (select_result == SOCKET_ERROR) {
+#ifdef _WIN32
+		std::cerr << "select() failed: " << WSAGetLastError() << std::endl;
+#else
+		std::cerr << "select() failed: " << strerror(errno) << std::endl;
+#endif
+		return false;
+	}
+
+	if (FD_ISSET(socket_, &error_fds)) {
+		return false;
+	}
+
+	return true;
+}
 
 bool ModbusTcp::sendRequest(const std::vector<uint8_t>& request) {
 	if (send(socket_, reinterpret_cast<const char*>(request.data()), request.size(), 0) == SOCKET_ERROR) {
@@ -137,8 +180,6 @@ void ModbusTcp::addToPacketLog(const std::string & direction, const std::string 
     std::lock_guard<std::mutex> lock(log_mutex_);
 
     Packet packet;
-
-	std::cout << "Logging packet: " << direction << " - " << function << " - " << std::endl;
 
     // Get current time
     auto now = std::chrono::system_clock::now();
@@ -204,9 +245,22 @@ std::string ModbusTcp::getFunctionName(uint8_t code) const {
     }
 }
 
+//std::vector<ModbusTcp::Packet> ModbusTcp::getPacketLog() const {
+//    std::lock_guard<std::mutex> lock(log_mutex_);
+//    return packet_log_;
+//}
+
 std::vector<ModbusTcp::Packet> ModbusTcp::getPacketLog() const {
-    std::lock_guard<std::mutex> lock(log_mutex_);
-    return packet_log_;
+
+	for (const auto& packet : packet_log_) {
+		std::cout << "[DEBUG] " << "Time: " << packet.timestamp
+			<< ", Direction: " << packet.direction
+			<< ", Function: " << packet.function
+			<< ", Details: " << packet.details
+			<< ", Data: " << packet.dataHex << std::endl;
+	}
+
+	return packet_log_;
 }
 
 void ModbusTcp::clearPacketLog() {
@@ -452,8 +506,32 @@ std::vector<uint16_t> ModbusTcp::readInputRegisters(uint16_t startAddr, uint16_t
 	return readRegisters(0x04, startAddr, quantity, unitId);
 }
 
+std::string ModbusTcp::processRegisters(const std::vector<uint16_t>& registers,
+	size_t startPos, size_t length, bool reverseBytes) {
+	std::stringstream hexStream;
+
+	for (uint16_t reg : registers) {
+		if (reverseBytes) {
+			reg = (reg >> 8) | (reg << 8);
+		}
+		hexStream << std::hex << std::setw(4) << std::setfill('0') << reg;
+	}
+
+	std::string hexString = hexStream.str();
+
+	if (startPos >= hexString.length()) {
+		return "";
+	}
+
+	if (startPos + length > hexString.length()) {
+		length = hexString.length() - startPos;
+	}
+
+	return hexString.substr(startPos, length);
+}
+
 //// Tests
-#ifdef TEST_MODE
+#ifdef DEBUG
 int main() {
     try {
         ModbusTcp client("192.168.127.254", 502, 3000);

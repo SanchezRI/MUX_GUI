@@ -20,7 +20,7 @@ int main() {
             GuiWindows::ShowAdcDacWindow(state);
         }
 
-        if (state.show_multiplexer_window) {
+        if (state.show_commutator_window) {
             GuiWindows::ShowMultiplexerWindow(state);
         }
 

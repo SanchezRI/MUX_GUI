@@ -1,7 +1,79 @@
-﻿//#define DEBUG_TEST
+﻿//#define DEBUG
 #include "GuiWindows.h"
 
-#ifndef DEBUG_TEST
+struct PacketTracer
+{
+    ImGuiTextBuffer Buf;
+    bool ScrollToBottom;
+
+    void Clear() { Buf.clear(); }
+
+    void AddLog(const char* fmt, ...) IM_FMTARGS(2)
+    {
+        va_list args;
+        va_start(args, fmt);
+        Buf.appendfv(fmt, args);
+        va_end(args);
+        ScrollToBottom = true;
+    }
+
+    void Draw(const char* title, bool* p_opened = NULL)
+    {
+        ImGui::Begin(title, p_opened);
+        ImGui::TextUnformatted(Buf.begin());
+        if (ScrollToBottom)
+            ImGui::SetScrollHereY(1.0f);
+        ScrollToBottom = false;
+        ImGui::End();
+    }
+};
+
+void GuiWindows::ShowPacketTracerWindow(AppState& state) {
+    static PacketTracer log;
+
+    ImGui::SetNextWindowSize(ImVec2(500, 400), ImGuiCond_FirstUseEver);
+    ImGui::Begin("PacketTracer: Communication traffic", &state.show_packet_tracer_window);
+
+#ifdef DEBUG
+    std::cout << "[DEBUG] COMMUTATOR CONNECTION STATUS: " << state.comm_connection << std::endl;
+#endif
+
+    const char* categories[3] = { "INFO", "WARNING", "ERROR" };
+    auto packets = state.comm_modbus.getPacketLog();
+
+    if (!state.comm_connection && packets.empty()) {
+        log.AddLog("[%.2f sec] {%s}: Please build connection with ModbusTCP server.\n",
+            ImGui::GetTime(), categories[2]);
+    }
+    else if (state.comm_connection) {
+        if (!packets.empty()) {
+
+            /*for (const auto& packet : packets) {
+                log.AddLog("[%s] [%.2f sec] {%s} | %s | %s | %s | %s\n",
+                    packet.timestamp.c_str(), ImGui::GetTime(), categories[0],
+                    packet.direction.c_str(), packet.function.c_str(),
+                    packet.details.c_str(), packet.dataHex.c_str());
+            }*/
+
+            log.AddLog("[%s] [%.2f sec] {%s} | %s | %s | %s | %s | ", packets.data()->timestamp.c_str(),
+                ImGui::GetTime(), categories[0], packets.data()->direction.c_str(), 
+                packets.data()->function.c_str(), packets.data()->details.c_str(), packets.data()->dataHex.c_str());
+        }
+        else {
+            log.AddLog("[%.2f sec] {%s}: Connection established, but no packets yet.\n",
+                ImGui::GetTime(), categories[0]);
+        }
+    }
+    else {
+        log.AddLog("[DEBUG]: Unknown state!\n");
+    }
+
+    log.Draw("PacketTracer: Communication traffic", &state.show_packet_tracer_window);
+    ImGui::End();
+}
+
+
+#ifdef DEBUG
 void GuiWindows::ShowPacketTracerWindow(AppState& state) {
     ImGui::Begin("Packet Tracer", &state.show_packet_tracer_window);
     ImGui::Text("ModbusTCP Communication Tracer");
@@ -90,10 +162,6 @@ void GuiWindows::ShowPacketTracerWindow(AppState& state) {
                 ImGui::Text("ASCII: %s", packet.dataAscii.c_str());
                 ImGui::EndTooltip();
             }
-
-            if (packets.empty()) {
-                ImGui::Text("No Packets logged yet ...");
-            }
         }
 
         // Autoscroll
@@ -104,4 +172,31 @@ void GuiWindows::ShowPacketTracerWindow(AppState& state) {
     }
     ImGui::End();
 }
+
+//void GuiWindows::ShowPacketTracerWindow(AppState& state) {
+//    static PacketTracer log;
+//
+//    ImGui::SetNextWindowSize(ImVec2(500, 400), ImGuiCond_FirstUseEver);
+//    ImGui::Begin("PacketTracer: Communication traffic", &state.show_packet_tracer_window);
+//
+//    std::cout << "[DEBUG] COMMUTATOR CONNECTION STATUS: " << state.mux_connection << std::endl;
+//
+//    const char* categories[3] = { "INFO", "WARNING", "ERROR"};
+//    auto packets = state.modbus.getPacketLog();
+//
+//    if (state.mux_connection == false && packets.empty()) {
+//        log.AddLog("[%.2f sec] {%s}: Please build connection with ModbusTCP server.\n", ImGui::GetTime(), categories[2]);
+//    }
+//    else if (state.mux_connection == true) {
+//        log.AddLog("[%s] [%.2f sec] {%s} | %s | %s | %s | %s | ", packets.data()->timestamp.c_str(), 
+//            ImGui::GetTime(), categories[0], packets.data()->direction.c_str(), 
+//            packets.data()->function.c_str(), packets.data()->details.c_str(), packets.data()->dataHex.c_str());
+//    }
+//    else {
+//        log.AddLog("[DEBUG]: ZALUPA KAKAYA-TO!!!!!!!!!!!!!\n");
+//    }
+//    log.Draw("PacketTracer: Communication traffic", &state.show_packet_tracer_window);
+//    ImGui::End();
+//}
+
 #endif

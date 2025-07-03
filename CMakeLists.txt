@@ -71,6 +71,7 @@ add_executable(MUX_GUI
     ${SOURCE_DIR_PATH}/StyleEditorWindow.cpp    # Style Editor Window for all styling
     ${SOURCE_DIR_PATH}/PacketTracerWindow.cpp   # Packet Tracer window
     ${RESOURCE_DIR_PATH}/resources.rc           # Icons and other stuff
+    ${RESOURCE_DIR_PATH}/resource.cpp           # Icons and other stuff
 )
 
 target_include_directories(MUX_GUI PRIVATE 
