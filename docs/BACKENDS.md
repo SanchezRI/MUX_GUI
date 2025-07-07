@@ -39,17 +39,18 @@ Entity description here
 
 ## Bugs
 Here is color management for **_Bug Types_**:
-- <span style="color:red">RED - Blocker </span>
-- <span style="color:orange">ORANGE - Critical</span>
-- <span style="color:yellow">YELLOW - Major </span>
-- <span style="color:green">GREEN - Minor</span>
+- $${\color{red}RED - Blocker }$$
+- $${\color{orange}ORANGE - Critical}$$
+- $${\color{yellow}YELLOW - Major }$$
+- $${\color{green}GREEN - Minor }$$
+
 
 Here is color management for **_Fix Statuses_**:
-- <span style="color:red">RED - [Finded] just fined bug. No ideas for resolving </span>
-- <span style="color:aqua">AQUA - [In Progress] resolving bug. Have multiple solutions for resolving bug. </span>
-- <span style="color:green">GREEN - [Resolved] after testing, bug is resolved</span>
+- $${\color{red}RED - just \space found \space bug. \space No \space ideas \space for \space resolving }$$
+- $${\color{aqua}AQUA - resolving \space bug. \space Have \space multiple \space solutions \space for \space resolving \space bug. }$$
+- $${\color{green}GREEN - after \space testing, bug \space is \space resolved }$$
 
 |Date|Bug Name|Bug Type|Description|Fix Ways|Fix Status|Fix Description|
 |----|--------|--------|-----------|--------|----------|---------------|
-|30/06/2025|Wrong connection status|<span style="color:yellow">Major</span>| Method connect() always return true| Change isConnected() method's source code |<span style="color:green">Resolved</span>|Add additional check of socket state|
+|30/06/2025|Wrong connection status|$${\color{yellow}Major}$$| Method **connect()** always return true| Change **isConnected()** method's source code |$${\color{green}Resolved}$$|Add additional check of socket state|
 

@@ -3,10 +3,10 @@ ________________________________________________________________________________
 
 ## Requirements
 
-$${\color{green}For execution: }$$
-- OS Windows 10 <br>
+<p align=left> $${\color{green}For \space execution: }$$
+- OS Windows 10 </p><br>
 
-$${\color{green}For development: }$$
+<p align=left>$${\color{green}For \space development: }$$ </p>
 - MSVC Compiler 14.39
 - WinCMake 3.31.2
 
@@ -27,15 +27,15 @@ See information about ModbusTCP library and compapitable devices:<br>
 
 ### Windows Installer
 1. Go to [my JINR-GitLab releases page](https://git.jinr.ru/SanchezRIwork/MUX_GUI/-/releases)
-2. Download Windows installer: $${\color{green}***MUX_GUI_[version]_setup.exe*** }$$
+2. Download Windows installer: ***MUX_GUI_[version]_setup.exe***
 3. Install to directory which doesn't have any spaces:
    - Example: ``` C:/tango_projects/MUX_GUI```
 ### Building from source
 1. Go to my remote repository [MUX_GUI](https://git.jinr.ru/SanchezRIwork/MUX_GUI/-/tree/master?ref_type=heads) and choose required branch:
-   - $${\color{green}***master***: main branch, stable release of app }$$
-   - $${\color{yellow}***develop***: bug fixes, testing, pre-release of app }$$<br> </span>
-   You also can see release tags (Example ***v1.0.0-alpha***)
-   - $${\color{red}***hot-fix***: fast bugs fixes only }$$
+   - ***master***: main branch, stable release of app
+   - ***develop***: bug main fixes, testing, development
+   - ***pre-release***: optimization, testing, pre-release of application <br>
+   _You also can see release tags (Example **v1.0.0-alpha**)_
 2. Clone repository with command ```git clone <repos URL>```
 3. Open ```Visual Studio 2022``` -> ```Open Folder``` -> ```path/to/MUX_GUI```
 4. Click ```Build``` -> ```Build All``` (If you have problem, regenerate CMake)
@@ -44,7 +44,7 @@ See information about ModbusTCP library and compapitable devices:<br>
 ## Using
 
 ### Getting Started
-1. Run $${\color{green}***MUX_GUI.exe***}$$</span>
+1. Run ***MUX_GUI.exe***
 2. Manage and control your device (or devices)!
 
 ### UserFlow
@@ -76,12 +76,12 @@ Here is color management for **_Bug Types_**:
 - $${\color{green}GREEN - Minor }$$
 
 Here is color management for **_Fix Statuses_**:
-- $${\color{red}RED - just fined bug. No ideas for resolving }$$
-- $${\color{aqua}AQUA - resolving bug. Have multiple solutions for resolving bug. }$$
-- $${\color{green}GREEN - after testing, bug is resolved }$$
+- $${\color{red}RED - just \space found \space bug. \space No \space ideas \space for \space resolving }$$
+- $${\color{aqua}AQUA - resolving \space bug. \space Have \space multiple \space solutions \space for \space resolving \space bug. }$$
+- $${\color{green}GREEN - after \space testing, bug \space is \space resolved }$$
 
 |Date|Bug Name|Bug Type|Description|Fix Ways|Fix Status|Fix Description|
 |----|--------|--------|-----------|--------|----------|---------------|
-|29/05/2025|Render blaming|$${\color{orange}Critical }$$| While connection isn't estabilished, app doesn't respond| Add Progress bar to render |$${\color{aqua}In Progress}$$|Add additional popup, but with syncronization problem|
+|29/05/2025|Render blaming|$${\color{orange}Critical }$$| While connection isn't estabilished, app doesn't respond| Add Progress bar to render |$${\color{aqua}In \space Progress}$$|Add additional popup, but with syncronization problem|
 |30/06/2025|PT doesn't display all packets|$${\color{yellow}Major}$$|Communication packets doesn't display on the window only in debug terminal|?|$${\color{red}Finded}$$|Nothing to describe|
-|02/07/2025|Wrong connection status on popup|$${\color{orange}Critical}$$|GUI displayed wrong successful connection to device|Check logic of connection on frontend|$${\color{aqua}In Progress}$$|Add new if-else block to **_comm_modbus.connect()_**|
+|02/07/2025|Wrong connection status on popup|$${\color{orange}Critical}$$|GUI displayed wrong successful connection to device|Check logic of connection on frontend|$${\color{green} Resolved}$$|Add new if-else block to **_comm_modbus.connect()_**|

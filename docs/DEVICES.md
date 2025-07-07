@@ -1,6 +1,6 @@
 ﻿# Devices
 -----------------------------------------------------------------------
-<center>This project only for manipulating and monitoring **JINR**-devices for stochastic cooling system.</center>
+<center>This project only for manipulating and monitoring JINR-devices for stochastic cooling system.</center>
 
 <span style="color:green">NICA (Nuclotron-based Ion Collider fAсility) is a new accelerator complex designed at the Joint Institute for Nuclear Research (Dubna, Russia) to study properties of dense baryonic matter.</span>
 
