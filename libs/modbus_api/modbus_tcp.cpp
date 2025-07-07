@@ -1,5 +1,4 @@
-﻿//#define DEBUG
-#include "modbus_tcp.h"
+﻿#include "modbus_tcp.h"
 
 /// Constructors and destructors
 
@@ -201,11 +200,6 @@ std::string ModbusTcp::getFunctionName(uint8_t code) const {
     default: return "Unknown Function";
     }
 }
-
-//std::vector<ModbusTcp::Packet> ModbusTcp::getPacketLog() const {
-//    std::lock_guard<std::mutex> lock(log_mutex_);
-//    return packet_log_;
-//}
 
 std::vector<ModbusTcp::Packet> ModbusTcp::getPacketLog() const {
 
@@ -486,58 +480,3 @@ std::string ModbusTcp::processRegisters(const std::vector<uint16_t>& registers,
 
 	return hexString.substr(startPos, length);
 }
-
-//// Tests
-#ifdef DEBUG
-int main() {
-    try {
-        ModbusTcp client("192.168.127.254", 502, 3000);
-
-        auto holdingRegs = client.readHoldingRegisters(10, 12);
-        std::cout << "Holding registers:" << std::endl;
-        for (auto reg : holdingRegs) {
-            std::cout << "0x" << std::hex << reg << std::endl;
-        }
-
-        auto inputRegs = client.readInputRegisters(0, 5);
-        std::cout << "Input registers:" << std::endl;
-        for (auto reg : inputRegs) {
-            std::cout << "0x" << std::hex << reg << std::endl;
-        }
-
-        if (client.writeSingleRegister(0, 0x1234)) {
-            std::cout << "Write single register successful" << std::endl;
-        }
-
-        std::vector<uint16_t> values = { 0x1111, 0x2222, 0x3333 };
-        if (client.writeMultipleRegisters(10, values)) {
-            std::cout << "Write multiple registers successful" << std::endl;
-        }
-
-        auto coils = client.readCoils(0, 16);
-        std::cout << "Coils:" << std::endl;
-        for (auto coil : coils) {
-            std::cout << (coil ? "1" : "0") << " ";
-        }
-        std::cout << std::endl;
-
-        client.startPolling(0, 10, [](const std::vector<uint16_t>& regs) {
-            std::cout << "Polled registers: ";
-            for (auto reg : regs) {
-                std::cout << "0x" << std::hex << reg << " ";
-            }
-            std::cout << std::endl;
-            }, 2000);
-
-        std::this_thread::sleep_for(std::chrono::seconds(10));
-        client.stopPolling();
-
-    }
-    catch (const std::exception& e) {
-        std::cerr << "Error: " << e.what() << std::endl;
-        return 1;
-    }
-
-    return 0;
-}
-#endif

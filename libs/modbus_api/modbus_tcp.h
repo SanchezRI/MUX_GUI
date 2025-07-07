@@ -5,6 +5,7 @@
 #include <string>
 #include <mutex>
 #include <functional>
+#include <future>
 #include <thread>
 #include <atomic>
 #include <sstream>
@@ -68,7 +69,8 @@ public:
     void clearPacketLog();
 
 private:
-    std::vector<uint16_t> readRegisters(uint8_t functionCode, uint16_t startAddr, uint16_t quantity, uint8_t unitId);
+    std::vector<uint16_t> readRegisters(uint8_t functionCode, 
+        uint16_t startAddr, uint16_t quantity, uint8_t unitId);
     bool sendRequest(const std::vector<uint8_t>& request);
     bool receiveResponse(uint8_t* buffer, size_t size);
     std::string getModbusErrorString(uint8_t code);

@@ -32,73 +32,152 @@ void GuiWindows::ShowMainWindow(AppState& state) {
 	ModbusTcp comm_modbus(str0, int0, int1);
 
 	// Connection and Popup
-	if (ImGui::Button("Connect"))
-		ImGui::OpenPopup("Connect?"); ImGui::SameLine(); ImGui::SetItemTooltip("Connect to MUX-device...");
+	if (ImGui::Button("Connect") && !state.show_progress_popup) {
+		ImGui::OpenPopup("Connect?");
+	}
+	ImGui::SameLine();
+	ImGui::SetItemTooltip("Connect to MUX-device...");
 
 	ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-	std::vector<uint16_t> input_reg;
 	ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 
-	if (ImGui::BeginPopupModal("Connect?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-	{
+	if (ImGui::BeginPopupModal("Connect?", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
 		ImGui::Text("Connect to MUX-device?");
 		ImGui::Separator();
 
 		if (ImGui::Button("OK", ImVec2(120, 0))) {
-			try {
-				if (comm_modbus.connect() == true) {
-					state.comm_connection = true;
+			{
+				std::lock_guard<std::mutex> lock(state.state_mutex);
+				state.show_progress_popup = true;
+				state.progress = 0.0f;
+				state.error_message.clear();
+			}
+
+			state.connection_future = std::async(std::launch::async, [&state, &comm_modbus]() {
+				std::vector<uint16_t> input_reg;
+				try {
+					bool connection_result = false;
+					{
+						std::lock_guard<std::mutex> lock(state.modbus_mutex);
+						connection_result = comm_modbus.connect();
+					}
+
+					{
+						std::lock_guard<std::mutex> lock(state.state_mutex);
+						state.comm_connection = connection_result;
+					}
+
+					if (connection_result) {
+						std::lock_guard<std::mutex> lock(state.modbus_mutex);
+						input_reg = comm_modbus.readInputRegisters(2, 1, 1);
+					}
+
+					{
+						std::lock_guard<std::mutex> lock(state.state_mutex);
+						if (!input_reg.empty()) {
+							state.mux_slot_id_1 = (comm_modbus.processRegisters(input_reg, 1, 1, false) == "1") ||
+								(comm_modbus.processRegisters(input_reg, 2, 1, false) == "1") ||
+								(comm_modbus.processRegisters(input_reg, 3, 1, false) == "1");
+
+							state.mux_slot_id_2 = (comm_modbus.processRegisters(input_reg, 1, 1, false) == "2") ||
+								(comm_modbus.processRegisters(input_reg, 2, 1, false) == "2") ||
+								(comm_modbus.processRegisters(input_reg, 3, 1, false) == "2");
+
+							state.mux_slot_id_3 = (comm_modbus.processRegisters(input_reg, 1, 1, false) == "3") ||
+								(comm_modbus.processRegisters(input_reg, 2, 1, false) == "3") ||
+								(comm_modbus.processRegisters(input_reg, 3, 1, false) == "3");
+
+							state.mux_slot_id_4 = (comm_modbus.processRegisters(input_reg, 1, 1, false) == "4") ||
+								(comm_modbus.processRegisters(input_reg, 2, 1, false) == "4") ||
+								(comm_modbus.processRegisters(input_reg, 3, 1, false) == "4");
+						}
+
+						state.progress = 1.0f;
+					}
+					std::this_thread::sleep_for(std::chrono::milliseconds(300));
 				}
-				else {
+				catch (const std::exception& err) {
+					std::lock_guard<std::mutex> lock(state.state_mutex);
 					state.comm_connection = false;
+					state.error_message = err.what();
+					state.progress = 1.0f;
 				}
-
-				input_reg = comm_modbus.readInputRegisters(2, 1, 1);
-
-				if (comm_modbus.processRegisters(input_reg, 1, 1, false) == ("1")
-					|| comm_modbus.processRegisters(input_reg, 2, 1, false) == ("1")
-					|| comm_modbus.processRegisters(input_reg, 3, 1, false) == ("1")) {
-					state.mux_slot_id_1 = true;
-				}
-				else {
-					state.mux_slot_id_1 = false;
-				}
-
-				if (comm_modbus.processRegisters(input_reg, 1, 1, false) == ("2")
-					|| comm_modbus.processRegisters(input_reg, 2, 1, false) == ("2")
-					|| comm_modbus.processRegisters(input_reg, 3, 1, false) == ("2")) {
-					state.mux_slot_id_2 = true;
-				}
-				else {
-					state.mux_slot_id_2 = false;
-				}
-
-				if (comm_modbus.processRegisters(input_reg, 1, 1, false) == ("3")
-					|| comm_modbus.processRegisters(input_reg, 2, 1, false) == ("3")
-					|| comm_modbus.processRegisters(input_reg, 3, 1, false) == ("3")) {
-					state.mux_slot_id_3 = true;
-				}
-				else {
-					state.mux_slot_id_3 = false;
-				}
-
-				if (comm_modbus.processRegisters(input_reg, 1, 1, false) == ("4")
-					|| comm_modbus.processRegisters(input_reg, 2, 1, false) == ("4")
-					|| comm_modbus.processRegisters(input_reg, 3, 1, false) == ("4")) {
-					state.mux_slot_id_4 = true;
-				}
-				else {
-					state.mux_slot_id_4 = false;
-				}
-			}
-			catch (const std::exception& err) {
-				state.comm_connection = false;
-			}
+				});
 			ImGui::CloseCurrentPopup();
 		}
-		ImGui::SetItemDefaultFocus(); ImGui::SameLine();
-		if (ImGui::Button("Cancel", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
+		ImGui::SetItemDefaultFocus();
+		ImGui::SameLine();
+		if (ImGui::Button("Cancel", ImVec2(120, 0))) {
+			ImGui::CloseCurrentPopup();
+		}
 		ImGui::EndPopup();
+	}
+
+	// Progress popup
+	if (state.show_progress_popup) {
+		if (!ImGui::IsPopupOpen("Connecting...")) {
+			ImGui::OpenPopup("Connecting...");
+		}
+
+		if (ImGui::BeginPopupModal("Connecting...", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+			bool show_popup = true;
+			bool comm_connection = false;
+			std::string error_message;
+			float progress = 0.0f;
+
+			{
+				std::lock_guard<std::mutex> lock(state.state_mutex);
+				show_popup = state.show_progress_popup;
+				comm_connection = state.comm_connection;
+				error_message = state.error_message;
+				progress = state.progress;
+			}
+
+			if (progress < 1.0f) {
+				ImGui::Text("Connecting to device...");
+				ImGui::ProgressBar(progress, ImVec2(200, 0));
+			}
+			else {
+				if (comm_connection) {
+					ImGui::TextColored(ImVec4(0, 1, 0, 1), "Connection successful!");
+					if (ImGui::Button("OK", ImVec2(120, 0))) {
+						std::lock_guard<std::mutex> lock(state.state_mutex);
+						state.show_progress_popup = false;
+						show_popup = false;
+					}
+				}
+				else {
+					ImGui::TextColored(ImVec4(1, 0, 0, 1), "Connection failed!");
+					if (!error_message.empty()) {
+						ImGui::Text("Error: %s", error_message.c_str());
+					}
+					if (ImGui::Button("OK", ImVec2(120, 0))) {
+						std::lock_guard<std::mutex> lock(state.state_mutex);
+						state.show_progress_popup = false;
+						show_popup = false;
+					}
+				}
+			}
+
+			if (progress >= 1.0f && comm_connection && state.connection_future.valid()) {
+				if (state.connection_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
+					try {
+						state.connection_future.get();
+					}
+					catch (const std::exception& err) {
+						std::lock_guard<std::mutex> lock(state.state_mutex);
+						state.error_message = err.what();
+						state.comm_connection = false;
+					}
+				}
+			}
+
+			if (!show_popup) {
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::EndPopup();
+		}
 	}
 
 	// Disconnection
@@ -136,17 +215,6 @@ void GuiWindows::ShowMainWindow(AppState& state) {
 		ImGui::End();
 		return;
 	} ImGui::SameLine();
-
-#ifdef DEBUG
-	if (ImGui::Button("[DEBUG] INPUT REGISTER")) {
-		auto input_reg = comm_modbus.readInputRegisters(2, 1, 1);
-		std::cout << "=======" << std::endl;
-		std::cout << comm_modbus.processRegisters(input_reg, 1, 1, false) << std::endl;
-		std::cout << comm_modbus.processRegisters(input_reg, 2, 1, false) << std::endl;
-		std::cout << comm_modbus.processRegisters(input_reg, 3, 1, false) << std::endl;
-		std::cout << "=======" << std::endl;
-	}
-#endif // DEBUG
 
 	// Polling
 	if (ImGui::Checkbox("Polling", &state.comm_polling)) {

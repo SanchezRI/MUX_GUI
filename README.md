@@ -6,9 +6,8 @@ ________________________________________________________________________________
 <p align=left> $${\color{green}For \space execution: }$$
 - OS Windows 10 </p><br>
 
-<p align=left>$${\color{green}For \space development: }$$ </p>
-- MSVC Compiler 14.39
-- WinCMake 3.31.2
+<p align=left>$${\color{green}For \space development: }$$
+- MSVC Compiler 14.39; WinCMake 3.31.2 </p>
 
 ## Libraries
 
