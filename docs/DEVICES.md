@@ -23,8 +23,3 @@ It has 4 types of multiplexers with diffrent **MUX_ID**:
 <span style="color:yellow">For identification of the slot type is responsible input register with 0x0002 address. </span>
 
 <span style="color:yellow">Commutator controled with 3 holding registers with addresses 0x000A (Right slot), 0x000B (Middle slot), 0x000C (Left slot) </span>
-
-
-## ADC/DAC device
-
-<span style="color:red">... Development state ...</span>
