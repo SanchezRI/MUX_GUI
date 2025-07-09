@@ -73,19 +73,43 @@ void ModbusTcp::disconnect() {
 }
 
 bool ModbusTcp::isConnected() {
-	if (socket_ == INVALID_SOCKET) return false;
-
-	char buf;
-	int err = recv(socket_, &buf, 1, MSG_PEEK);
-	if (err == SOCKET_ERROR) {
-#ifdef _WIN32
-		if (WSAGetLastError() != WSAEWOULDBLOCK) {
-#else
-		if (errno != EWOULDBLOCK) {
-#endif
-			return false;
-		}
+	if (socket_ == INVALID_SOCKET) {
+		return false;
 	}
+
+	fd_set read_fds;
+	FD_ZERO(&read_fds);
+	FD_SET(socket_, &read_fds);
+
+	fd_set error_fds;
+	FD_ZERO(&error_fds);
+	FD_SET(socket_, &error_fds);
+
+	timeval timeout;
+	timeout.tv_sec = 0;
+	timeout.tv_usec = 0;
+
+	int select_result = select(
+		static_cast<int>(socket_) + 1,
+		&read_fds,
+		nullptr,
+		&error_fds,
+		&timeout
+	);
+
+	if (select_result == SOCKET_ERROR) {
+#ifdef _WIN32
+		std::cerr << "select() failed: " << WSAGetLastError() << std::endl;
+#else
+		std::cerr << "select() failed: " << strerror(errno) << std::endl;
+#endif
+		return false;
+	}
+
+	if (FD_ISSET(socket_, &error_fds)) {
+		return false;
+	}
+
 	return true;
 }
 
