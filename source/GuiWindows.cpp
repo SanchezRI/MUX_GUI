@@ -29,7 +29,7 @@ void GuiWindows::ShowMainWindow(AppState& state) {
 		std::cout << "Callback: New Unit_ID: " << int1 << std::endl;
 	}
 
-	ModbusTcp comm_modbus(str0, int0, int1);
+	ModbusTcp comm_modbus(str0, int0, 3000);
 
 	// Connection and Popup
 	if (ImGui::Button("Connect"))
