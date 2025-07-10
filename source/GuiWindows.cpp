@@ -12,7 +12,18 @@ void GuiWindows::ShowMainWindow(AppState& state) {
 	ImGui::SetNextWindowSize(ImVec2(viewport->Size.x * 1.0f, viewport->Size.y));
 
 	ImGui::Begin("Commutator", &state.show_commutator_window, state.window_flags);
-	ImGui::Text("Here is Commutator window. That controls Multiplexers in commutator unit.");
+	ImGui::Text("Here is Commutator window. That controls Multiplexers in commutator unit.																"); ImGui::SameLine();
+	if (ImGui::SmallButton("App Info")) {
+		ImGui::OpenPopup("App Info Popup");
+	}
+
+	if (ImGui::BeginPopupModal("App Info Popup", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+		ImGui::TextColored(ImVec4(1, 1, 0, 1), "Developed by Max Golubev, LHEP JINR\nGithub: https://github.com/SanchezRI/MUX_GUI");
+		if (ImGui::Button("OK", ImVec2(120, 0))) {
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
 
 	static char str0[128] = "192.168.127.254";
 	if (ImGui::InputText("IP-addr", str0, IM_ARRAYSIZE(str0))) {
@@ -32,72 +43,61 @@ void GuiWindows::ShowMainWindow(AppState& state) {
 	ModbusTcp comm_modbus(str0, int0, 3000);
 
 	// Connection and Popup
-	if (ImGui::Button("Connect"))
-		ImGui::OpenPopup("Connect?"); ImGui::SameLine(); ImGui::SetItemTooltip("Connect to MUX-device...");
+	static bool show_connect_popup = false;
+	static bool connect_success = false;
+
+	if (ImGui::Button("Connect")) {
+		show_connect_popup = true;
+		connect_success = comm_modbus.connect();
+
+		if (connect_success) {
+			state.comm_connection = true;
+
+			auto input_reg = comm_modbus.readInputRegisters(2, 1, 1);
+
+			auto check_slot = [&](int slot) {
+				return comm_modbus.processRegisters(input_reg, 1, 1, false) == std::to_string(slot) ||
+					comm_modbus.processRegisters(input_reg, 2, 1, false) == std::to_string(slot) ||
+					comm_modbus.processRegisters(input_reg, 3, 1, false) == std::to_string(slot);
+				};
+
+			state.mux_slot_id_1 = check_slot(1);
+			state.mux_slot_id_2 = check_slot(2);
+			state.mux_slot_id_3 = check_slot(3);
+			state.mux_slot_id_4 = check_slot(4);
+
+		}
+		else {
+			state.comm_connection = false;
+		}
+	} ImGui::SameLine();
+
+	if (show_connect_popup) {
+		ImGui::OpenPopup("##ConnectResult");
+		show_connect_popup = false;
+	}
 
 	ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-	std::vector<uint16_t> input_reg;
 	ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 
-	if (ImGui::BeginPopupModal("Connect?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-	{
-		ImGui::Text("Connect to MUX-device?");
-		ImGui::Separator();
-
-		if (ImGui::Button("OK", ImVec2(120, 0))) {
-			try {
-				if (comm_modbus.connect() == true) {
-					state.comm_connection = true;
-				}
-				else {
-					state.comm_connection = false;
-				}
-
-				input_reg = comm_modbus.readInputRegisters(2, 1, 1);
-
-				if (comm_modbus.processRegisters(input_reg, 1, 1, false) == ("1")
-					|| comm_modbus.processRegisters(input_reg, 2, 1, false) == ("1")
-					|| comm_modbus.processRegisters(input_reg, 3, 1, false) == ("1")) {
-					state.mux_slot_id_1 = true;
-				}
-				else {
-					state.mux_slot_id_1 = false;
-				}
-
-				if (comm_modbus.processRegisters(input_reg, 1, 1, false) == ("2")
-					|| comm_modbus.processRegisters(input_reg, 2, 1, false) == ("2")
-					|| comm_modbus.processRegisters(input_reg, 3, 1, false) == ("2")) {
-					state.mux_slot_id_2 = true;
-				}
-				else {
-					state.mux_slot_id_2 = false;
-				}
-
-				if (comm_modbus.processRegisters(input_reg, 1, 1, false) == ("3")
-					|| comm_modbus.processRegisters(input_reg, 2, 1, false) == ("3")
-					|| comm_modbus.processRegisters(input_reg, 3, 1, false) == ("3")) {
-					state.mux_slot_id_3 = true;
-				}
-				else {
-					state.mux_slot_id_3 = false;
-				}
-
-				if (comm_modbus.processRegisters(input_reg, 1, 1, false) == ("4")
-					|| comm_modbus.processRegisters(input_reg, 2, 1, false) == ("4")
-					|| comm_modbus.processRegisters(input_reg, 3, 1, false) == ("4")) {
-					state.mux_slot_id_4 = true;
-				}
-				else {
-					state.mux_slot_id_4 = false;
-				}
+	if (ImGui::BeginPopupModal("##ConnectResult", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+		if (connect_success) {
+			ImGui::TextColored(ImVec4(0, 1, 0, 1), "Connection Success!");
+			if (ImGui::Button("OK", ImVec2(120, 0))) {
+				ImGui::CloseCurrentPopup();
 			}
-			catch (const std::exception& err) {
-				state.comm_connection = false;
-			}
-			ImGui::CloseCurrentPopup();
 		}
-		ImGui::SetItemDefaultFocus(); ImGui::SameLine();
-		if (ImGui::Button("Cancel", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
+		else {
+			ImGui::TextColored(ImVec4(1, 0, 0, 1), "Connection Error!");
+			if (ImGui::Button("Retry", ImVec2(120, 0))) {
+				show_connect_popup = true;
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel", ImVec2(120, 0))) {
+				ImGui::CloseCurrentPopup();
+			}
+		}
 		ImGui::EndPopup();
 	}
 

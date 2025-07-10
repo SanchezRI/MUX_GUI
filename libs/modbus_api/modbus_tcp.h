@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <mutex>
+#include <future>
 #include <functional>
 #include <thread>
 #include <atomic>
@@ -48,7 +49,6 @@ public:
     void disconnect();
     bool isConnected();
 
-    // Modbus functions
     std::vector<bool> readCoils(uint16_t startAddr, uint16_t quantity, uint8_t unitId);
     std::vector<uint16_t> readHoldingRegisters(uint16_t startAddr, uint16_t quantity, uint8_t unitId);
     std::vector<uint16_t> readInputRegisters(uint16_t startAddr, uint16_t quantity, uint8_t unitId);
@@ -57,13 +57,11 @@ public:
     std::string processRegisters(const std::vector<uint16_t>& registers,
         size_t startPos, size_t length, bool reverseBytes);
 
-    // Polling
     void startPolling(uint16_t startAddr, uint16_t quantity,
         std::function<void(const std::vector<uint16_t>&)> callback,
         uint16_t intervalMs = 1000, uint8_t unitId = 1);
     void stopPolling();
 
-    // Packet logging
     std::vector<Packet> getPacketLog() const;
     void clearPacketLog();
 

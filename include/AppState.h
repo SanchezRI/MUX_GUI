@@ -14,7 +14,8 @@ struct AppState {
     bool mux_slot_id_2 = false;
     bool mux_slot_id_3 = false;
     bool mux_slot_id_4 = false;
-    ModbusTcp comm_modbus;
+    bool has_duplicate_slots = false;
+    bool all_slots_same = false;
 
     // Window's style settings
     ImGuiWindowFlags window_flags = 0;
