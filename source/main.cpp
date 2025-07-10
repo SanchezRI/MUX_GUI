@@ -17,6 +17,8 @@ int main() {
         // Render UI
         GuiWindows::ShowMainWindow(state);
 
+        std::cout << "[DEBUG] isConnectedD????????????: " << state.comm_modbus.isConnected() << std::endl;
+
 
         RenderSystem::EndFrame();
     }
