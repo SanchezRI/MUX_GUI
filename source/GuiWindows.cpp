@@ -137,17 +137,6 @@ void GuiWindows::ShowMainWindow(AppState& state) {
 		return;
 	} ImGui::SameLine();
 
-#ifdef DEBUG
-	if (ImGui::Button("[DEBUG] INPUT REGISTER")) {
-		auto input_reg = comm_modbus.readInputRegisters(2, 1, 1);
-		std::cout << "=======" << std::endl;
-		std::cout << comm_modbus.processRegisters(input_reg, 1, 1, false) << std::endl;
-		std::cout << comm_modbus.processRegisters(input_reg, 2, 1, false) << std::endl;
-		std::cout << comm_modbus.processRegisters(input_reg, 3, 1, false) << std::endl;
-		std::cout << "=======" << std::endl;
-	}
-#endif // DEBUG
-
 	// Polling
 	if (ImGui::Checkbox("Polling", &state.comm_polling)) {
 		if (state.comm_polling == true) {
