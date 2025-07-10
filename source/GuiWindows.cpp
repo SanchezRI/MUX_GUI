@@ -53,12 +53,59 @@ void GuiWindows::ShowMainWindow(AppState& state) {
 		if (connect_success) {
 			state.comm_connection = true;
 
+			// Чтение регистров только при подключении
 			auto input_reg = comm_modbus.readInputRegisters(2, 1, 1);
 
+			// Обновляем данные слотов
+			state.slot_values.clear();
+			for (int i = 1; i <= 3; ++i) {
+				state.slot_values.push_back(comm_modbus.processRegisters(input_reg, i, 1, false));
+			}
+
+			// Сбрасываем счетчики
+			memset(state.slot_counts, 0, sizeof(state.slot_counts));
+			for (const auto& val : state.slot_values) {
+				if (val == "1") state.slot_counts[0]++;
+				else if (val == "2") state.slot_counts[1]++;
+				else if (val == "3") state.slot_counts[2]++;
+				else if (val == "4") state.slot_counts[3]++;
+			}
+
+			// Проверка дубликатов
+			state.has_duplicate_slots = false;
+			state.all_slots_same = true;
+
+			for (size_t i = 1; i < state.slot_values.size(); ++i) {
+				if (state.slot_values[i] != state.slot_values[0]) {
+					state.all_slots_same = false;
+					break;
+				}
+			}
+
+			if (!state.all_slots_same) {
+				for (size_t i = 0; i < state.slot_values.size(); ++i) {
+					for (size_t j = i + 1; j < state.slot_values.size(); ++j) {
+						if (state.slot_values[i] == state.slot_values[j]) {
+							state.has_duplicate_slots = true;
+							break;
+						}
+					}
+					if (state.has_duplicate_slots) break;
+				}
+			}
+			else {
+				state.has_duplicate_slots = true;
+			}
+
+			// Обновляем статусы слотов
 			auto check_slot = [&](int slot) {
-				return comm_modbus.processRegisters(input_reg, 1, 1, false) == std::to_string(slot) ||
-					comm_modbus.processRegisters(input_reg, 2, 1, false) == std::to_string(slot) ||
-					comm_modbus.processRegisters(input_reg, 3, 1, false) == std::to_string(slot);
+				std::string slot_str = std::to_string(slot);
+				for (const auto& val : state.slot_values) {
+					if (val == slot_str) {
+						return true;
+					}
+				}
+				return false;
 				};
 
 			state.mux_slot_id_1 = check_slot(1);
@@ -66,9 +113,11 @@ void GuiWindows::ShowMainWindow(AppState& state) {
 			state.mux_slot_id_3 = check_slot(3);
 			state.mux_slot_id_4 = check_slot(4);
 
+			state.slots_updated = true;
 		}
 		else {
 			state.comm_connection = false;
+			state.slots_updated = false;
 		}
 	} ImGui::SameLine();
 
@@ -170,32 +219,29 @@ void GuiWindows::ShowMainWindow(AppState& state) {
 	/// Hardware identification
 	{
 		ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
-
 		ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
-		ImGui::BeginChild("ChildR", ImVec2(0, 150), ImGuiChildFlags_Borders, window_flags);
+		ImGui::BeginChild("ChildR", ImVec2(0, 180), ImGuiChildFlags_Borders, window_flags);
 
-		if (ImGui::BeginMenuBar())
-		{
-			if (ImGui::BeginMenu("Menu"))
-			{
+		if (ImGui::BeginMenuBar()) {
+			if (ImGui::BeginMenu("Menu")) {
 				ImGui::EndMenu();
 			}
 			ImGui::EndMenuBar();
 		}
 
-		if (ImGui::BeginTable("MUX Status", 2,
+		if (ImGui::BeginTable("MUX Status", 3,
 			ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg |
 			ImGuiTableFlags_SizingFixedSame))
 		{
-			const float column_width = ImGui::GetContentRegionAvail().x * 0.5f - ImGui::GetStyle().CellPadding.x;
+			const float column_width = ImGui::GetContentRegionAvail().x / 3.0f - ImGui::GetStyle().CellPadding.x;
 
 			ImGui::TableSetupColumn("MUX", ImGuiTableColumnFlags_WidthFixed, column_width);
 			ImGui::TableSetupColumn("Status", ImGuiTableColumnFlags_WidthFixed, column_width);
+			ImGui::TableSetupColumn("Count", ImGuiTableColumnFlags_WidthFixed, column_width);
 			ImGui::TableHeadersRow();
 
-			auto showMuxStatus = [](const char* label, bool isInstalled) {
+			auto showMuxStatus = [](const char* label, bool isInstalled, int count) {
 				ImGui::TableNextRow();
-
 				ImGui::TableSetColumnIndex(0);
 				ImGui::Text("%s", label);
 
@@ -207,14 +253,32 @@ void GuiWindows::ShowMainWindow(AppState& state) {
 					button_size);
 				ImGui::SameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
 				ImGui::Text("[%s]", isInstalled ? "Installed" : "Not Installed");
+
+				ImGui::TableSetColumnIndex(2);
+				if (isInstalled) {
+					ImGui::Text("%d", count);
+				}
+				else {
+					ImGui::TextDisabled("-");
+				}
 				};
 
-			showMuxStatus("MUX_ID = 1", state.mux_slot_id_1);
-			showMuxStatus("MUX_ID = 2", state.mux_slot_id_2);
-			showMuxStatus("MUX_ID = 3", state.mux_slot_id_3);
-			showMuxStatus("MUX_ID = 4", state.mux_slot_id_4);
+			showMuxStatus("MUX_ID = 1", state.mux_slot_id_1, state.slot_counts[0]);
+			showMuxStatus("MUX_ID = 2", state.mux_slot_id_2, state.slot_counts[1]);
+			showMuxStatus("MUX_ID = 3", state.mux_slot_id_3, state.slot_counts[2]);
+			showMuxStatus("MUX_ID = 4", state.mux_slot_id_4, state.slot_counts[3]);
 
 			ImGui::EndTable();
+		}
+
+		if (state.has_duplicate_slots) {
+			ImGui::Spacing();
+			if (state.all_slots_same) {
+				ImGui::TextColored(ImVec4(1, 0, 0, 1), "Warning: All 3 slots have the same value!");
+			}
+			else {
+				ImGui::TextColored(ImVec4(1, 1, 0, 1), "Warning: Some slots have duplicate values!");
+			}
 		}
 
 		ImGui::EndChild();
