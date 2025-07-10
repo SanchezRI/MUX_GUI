@@ -16,9 +16,9 @@ struct AppState {
     bool mux_slot_id_4 = false;
     bool has_duplicate_slots = false;
     bool all_slots_same = false;
+    bool slots_updated = false;
     std::vector<std::string> slot_values;
     int slot_counts[4] = { 0 };
-    bool slots_updated = false;
 
     // Window's style settings
     ImGuiWindowFlags window_flags = 0;

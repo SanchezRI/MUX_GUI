@@ -14,11 +14,21 @@ void GuiWindows::ShowMainWindow(AppState& state) {
 	ImGui::Begin("Commutator", &state.show_commutator_window, state.window_flags);
 	ImGui::Text("Here is Commutator window. That controls Multiplexers in commutator unit.																"); ImGui::SameLine();
 	if (ImGui::SmallButton("App Info")) {
-		ImGui::OpenPopup("App Info Popup");
+		ImGui::OpenPopup("Information & Contacts");
 	}
 
-	if (ImGui::BeginPopupModal("App Info Popup", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
-		ImGui::TextColored(ImVec4(1, 1, 0, 1), "Developed by Max Golubev, LHEP JINR\nGithub: https://github.com/SanchezRI/MUX_GUI");
+	if (ImGui::BeginPopupModal("Information & Contacts", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+		ImGui::TextColored(ImVec4(1, 1, 0, 1), "Developed by Max Golubev, JINR\n");
+		ImGui::TextColored(ImVec4(1, 1, 0, 1), "Contacts:");
+		ImGui::TextColored(ImVec4(1, 1, 0, 1), "\t- Laboratory of High Energy Physics");
+		ImGui::TextColored(ImVec4(1, 1, 0, 1), "\t- Building No. 2, Room No. 119a");
+		ImGui::TextColored(ImVec4(1, 1, 0, 1), "Digital resources:");
+		ImGui::TextColored(ImVec4(1, 1, 0, 1), "\t- Github: ");
+		ImGui::SameLine(0, 0);
+		ImGui::TextLinkOpenURL("https://github.com/SanchezRI/MUX_GUI");
+		ImGui::TextColored(ImVec4(1, 1, 0, 1), "\t- Releases: ");
+		ImGui::SameLine(0, 0);
+		ImGui::TextLinkOpenURL("https://github.com/SanchezRI/MUX_GUI/releases");
 		if (ImGui::Button("OK", ImVec2(120, 0))) {
 			ImGui::CloseCurrentPopup();
 		}
@@ -42,7 +52,7 @@ void GuiWindows::ShowMainWindow(AppState& state) {
 
 	ModbusTcp comm_modbus(str0, int0, 3000);
 
-	// Connection and Popup
+	/// Connection and Popup
 	static bool show_connect_popup = false;
 	static bool connect_success = false;
 
@@ -53,16 +63,13 @@ void GuiWindows::ShowMainWindow(AppState& state) {
 		if (connect_success) {
 			state.comm_connection = true;
 
-			// Чтение регистров только при подключении
 			auto input_reg = comm_modbus.readInputRegisters(2, 1, 1);
 
-			// Обновляем данные слотов
 			state.slot_values.clear();
 			for (int i = 1; i <= 3; ++i) {
 				state.slot_values.push_back(comm_modbus.processRegisters(input_reg, i, 1, false));
 			}
 
-			// Сбрасываем счетчики
 			memset(state.slot_counts, 0, sizeof(state.slot_counts));
 			for (const auto& val : state.slot_values) {
 				if (val == "1") state.slot_counts[0]++;
@@ -71,7 +78,6 @@ void GuiWindows::ShowMainWindow(AppState& state) {
 				else if (val == "4") state.slot_counts[3]++;
 			}
 
-			// Проверка дубликатов
 			state.has_duplicate_slots = false;
 			state.all_slots_same = true;
 
@@ -97,7 +103,6 @@ void GuiWindows::ShowMainWindow(AppState& state) {
 				state.has_duplicate_slots = true;
 			}
 
-			// Обновляем статусы слотов
 			auto check_slot = [&](int slot) {
 				std::string slot_str = std::to_string(slot);
 				for (const auto& val : state.slot_values) {
@@ -150,7 +155,7 @@ void GuiWindows::ShowMainWindow(AppState& state) {
 		ImGui::EndPopup();
 	}
 
-	// Disconnection
+	/// Disconnection
 	if (ImGui::Button("Disconnect"))
 		ImGui::OpenPopup("Disconnect?"); ImGui::SameLine(); ImGui::SetItemTooltip("Disconnect MUX-device");
 
@@ -174,7 +179,7 @@ void GuiWindows::ShowMainWindow(AppState& state) {
 		ImGui::EndPopup();
 	}
 
-	// Status
+	/// Status
 	ImGui::ColorButton("Commutator Status",
 		state.comm_connection ? ImVec4(0, 1, 0, 1) : ImVec4(1, 0, 0, 1),
 		ImGuiColorEditFlags_NoTooltip, ImVec2(25, 25)); ImGui::SameLine();
@@ -186,7 +191,7 @@ void GuiWindows::ShowMainWindow(AppState& state) {
 		return;
 	} ImGui::SameLine();
 
-	// Polling
+	/// Polling
 	if (ImGui::Checkbox("Polling", &state.comm_polling)) {
 		if (state.comm_polling == true) {
 			std::cout << "Callback: Turn on poll_command !!!!!" << std::endl;
