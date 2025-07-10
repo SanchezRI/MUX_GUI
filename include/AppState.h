@@ -14,14 +14,8 @@ struct AppState {
     bool mux_slot_id_2 = false;
     bool mux_slot_id_3 = false;
     bool mux_slot_id_4 = false;
-
-    bool show_progress_popup = false;
-    float progress = 0.0f;
-    ModbusTcp comm_modbus;
-    std::future<void> connection_future;
-    std::string error_message;
-    std::mutex state_mutex;
-    std::mutex modbus_mutex;
+    bool has_duplicate_slots = false;
+    bool all_slots_same = false;
 
     // Window's style settings
     ImGuiWindowFlags window_flags = 0;

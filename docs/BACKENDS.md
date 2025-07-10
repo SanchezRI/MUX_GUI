@@ -53,4 +53,3 @@ Here is color management for **_Fix Statuses_**:
 |Date|Bug Name|Bug Type|Description|Fix Ways|Fix Status|Fix Description|
 |----|--------|--------|-----------|--------|----------|---------------|
 |30/06/2025|Wrong connection status|$${\color{yellow}Major}$$| Method **connect()** always return true| Change **isConnected()** method's source code |$${\color{green}Resolved}$$|Add additional check of socket state|
-

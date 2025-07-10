@@ -1,7 +1,5 @@
 ﻿#include "modbus_tcp.h"
 
-/// Constructors and destructors
-
 ModbusTcp::ModbusTcp(const std::string& serverIp, uint16_t serverPort, uint32_t timeoutMs)
     : server_ip(serverIp), server_port(serverPort), timeout_ms(timeoutMs) {
 #ifdef _WIN32
@@ -27,8 +25,6 @@ ModbusTcp::~ModbusTcp() {
     WSACleanup();
 #endif
 }
-
-/// Base ModbusTCP methods
 
 bool ModbusTcp::connect() {
     if (isConnected()) return true;
@@ -120,7 +116,6 @@ bool ModbusTcp::sendRequest(const std::vector<uint8_t>& request) {
 		return false;
 	}
 
-	// Log sent packet
 	std::string funcName = "Unknown";
 	if (request.size() >= 7) {
 		funcName = getFunctionName(request[7]);
@@ -138,7 +133,6 @@ bool ModbusTcp::receiveResponse(uint8_t* buffer, size_t size) {
 		return false;
 	}
 
-	// Log received packet
 	std::vector<uint8_t> response(buffer, buffer + bytesReceived);
 	std::string funcName = "Unknown";
 	bool isError = false;
@@ -153,15 +147,12 @@ bool ModbusTcp::receiveResponse(uint8_t* buffer, size_t size) {
 	return true;
 }
 
-/// Packet tracer methods
-
 void ModbusTcp::addToPacketLog(const std::string & direction, const std::string & function,
     const std::vector<uint8_t>&data, bool isError) {
     std::lock_guard<std::mutex> lock(log_mutex_);
 
     Packet packet;
 
-    // Get current time
     auto now = std::chrono::system_clock::now();
     auto now_time = std::chrono::system_clock::to_time_t(now);
     char timestamp_buf[20];
@@ -172,7 +163,6 @@ void ModbusTcp::addToPacketLog(const std::string & direction, const std::string 
     packet.function = function;
     packet.isError = isError;
 
-    // HEX representation
     std::ostringstream hexStream;
     hexStream << std::hex << std::setfill('0');
     for (uint8_t byte : data) {
@@ -180,7 +170,6 @@ void ModbusTcp::addToPacketLog(const std::string & direction, const std::string 
     }
     packet.dataHex = hexStream.str();
 
-    // ASCII representation
     std::ostringstream asciiStream;
     for (uint8_t byte : data) {
         if (byte >= 32 && byte <= 126) {
@@ -192,13 +181,12 @@ void ModbusTcp::addToPacketLog(const std::string & direction, const std::string 
     }
     packet.dataAscii = asciiStream.str();
 
-    // Packet details
     if (data.size() >= 7) {
         std::ostringstream detailsStream;
         detailsStream << "UnitID: " << static_cast<int>(data[6]) << ", ";
         detailsStream << "Func: 0x" << std::hex << static_cast<int>(data[7]);
 
-        if (data[7] & 0x80) { // Error response
+        if (data[7] & 0x80) {
             detailsStream << " (Error: " << getModbusErrorString(data[8]) << ")";
         }
         packet.details = detailsStream.str();
@@ -206,7 +194,6 @@ void ModbusTcp::addToPacketLog(const std::string & direction, const std::string 
 
     packet_log_.push_back(packet);
 
-    // Limit log size
     if (packet_log_.size() > 1000) {
         packet_log_.erase(packet_log_.begin());
     }
@@ -258,8 +245,6 @@ std::string ModbusTcp::getModbusErrorString(uint8_t code) {
 	}
 }
 
-/// Polling methods
-
 void ModbusTcp::startPolling(uint16_t startAddr, uint16_t quantity, std::function<void(const std::vector<uint16_t>&)> callback,
 	uint16_t interval_ms, uint8_t unitId) {
 	stopPolling();
@@ -282,8 +267,6 @@ void ModbusTcp::stopPolling() {
 	}
 }
 
-/// Registrers methods
-
 std::vector<uint16_t> ModbusTcp::readRegisters(uint8_t functionCode, uint16_t startAddr, uint16_t quantity, uint8_t unitId) {
 	std::vector<uint16_t> result;
 
@@ -298,11 +281,11 @@ std::vector<uint16_t> ModbusTcp::readRegisters(uint8_t functionCode, uint16_t st
 	}
 
 	std::vector<uint8_t> request = {
-		0x00, 0x01, // Transaction ID
-		0x00, 0x00, // Protocol ID
-		0x00, 0x06, // Length
-		unitId,     // Unit ID
-		functionCode, // Function Code
+		0x00, 0x01,
+		0x00, 0x00,
+		0x00, 0x06,
+		unitId,
+		functionCode,
 		static_cast<uint8_t>(startAddr >> 8),
 		static_cast<uint8_t>(startAddr & 0xFF),
 		static_cast<uint8_t>(quantity >> 8),
@@ -360,11 +343,11 @@ std::vector<bool> ModbusTcp::readCoils(uint16_t startAddr, uint16_t quantity, ui
 	}
 
 	std::vector<uint8_t> request = {
-		0x00, 0x01, // Transaction ID
-		0x00, 0x00, // Protocol ID
-		0x00, 0x06, // Length
-		unitId,     // Unit ID
-		0x01,       // Function Code
+		0x00, 0x01,
+		0x00, 0x00,
+		0x00, 0x06,
+		unitId,
+		0x01,
 		static_cast<uint8_t>(startAddr >> 8),
 		static_cast<uint8_t>(startAddr & 0xFF),
 		static_cast<uint8_t>(quantity >> 8),
@@ -420,11 +403,11 @@ bool ModbusTcp::writeMultipleRegisters(uint16_t startAddr, const std::vector<uin
 	uint8_t byteCount = quantity * 2;
 
 	std::vector<uint8_t> request = {
-		0x00, 0x01, // Transaction ID
-		0x00, 0x00, // Protocol ID
-		0x00, static_cast<uint8_t>(7 + byteCount), // Length
-		unitId,     // Unit ID
-		0x10,       // Function Code
+		0x00, 0x01,
+		0x00, 0x00,
+		0x00, static_cast<uint8_t>(7 + byteCount),
+		unitId,
+		0x10,
 		static_cast<uint8_t>(startAddr >> 8),
 		static_cast<uint8_t>(startAddr & 0xFF),
 		static_cast<uint8_t>(quantity >> 8),
@@ -453,11 +436,11 @@ bool ModbusTcp::writeSingleRegister(uint16_t addr, uint16_t value, uint8_t unitI
 	}
 
 	std::vector<uint8_t> request = {
-		0x00, 0x01, // Transaction ID
-		0x00, 0x00, // Protocol ID
-		0x00, 0x06, // Length
-		unitId,     // Unit ID
-		0x06,       // Function Code
+		0x00, 0x01,
+		0x00, 0x00,
+		0x00, 0x06,
+		unitId,
+		0x06,
 		static_cast<uint8_t>(addr >> 8),
 		static_cast<uint8_t>(addr & 0xFF),
 		static_cast<uint8_t>(value >> 8),

@@ -82,5 +82,7 @@ Here is color management for **_Fix Statuses_**:
 |Date|Bug Name|Bug Type|Description|Fix Ways|Fix Status|Fix Description|
 |----|--------|--------|-----------|--------|----------|---------------|
 |29/05/2025|Render blaming|$${\color{orange}Critical }$$| While connection isn't estabilished, app doesn't respond| Add Progress bar to render |$${\color{aqua}In \space Progress}$$|Add additional popup, but with syncronization problem|
-|30/06/2025|PT doesn't display all packets|$${\color{yellow}Major}$$|Communication packets doesn't display on the window only in debug terminal|?|$${\color{red}Finded}$$|Nothing to describe|
+|30/06/2025|PT doesn't display all packets|$${\color{yellow}Major}$$|Communication packets doesn't display on the window only in debug terminal|?|$${\color{red}Found}$$|Nothing to describe|
 |02/07/2025|Wrong connection status on popup|$${\color{orange}Critical}$$|GUI displayed wrong successful connection to device|Check logic of connection on frontend|$${\color{green} Resolved}$$|Add new if-else block to **_comm_modbus.connect()_**|
+|09/07/2025|Popup Thread error|$${\color{red}Blocker }$$|GUI displayed wrong connection status - disconnected even connection was successful!|?|$${\color{red} Found}$$|?|
+|09/07/2025|Defaut font displayed|$${\color{green}Minor}$$|Default font displayed while app installed and executed on another PC|Change automated location path in **RenderSystem.cpp**|$${\color{aqua}In \space Progress}$$|After building just resolve to installation path|

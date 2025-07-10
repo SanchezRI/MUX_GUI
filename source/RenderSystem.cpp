@@ -5,21 +5,18 @@
 #include <fstream>
 #include <cstring>
 
-// Scatic var for store window's state
 static GLFWwindow* s_Window = nullptr;
 
 bool RenderSystem::Initialize(int width, int height, const char* title) {
-    // Init GLFW
+
     if (!glfwInit()) {
         std::cerr << "Failed to initialize GLFW" << std::endl;
         return false;
     }
 
-    // Setting GLFW
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-    // Create window
     s_Window = glfwCreateWindow(width, height, title, NULL, NULL);
     if (!s_Window) {
         std::cerr << "Failed to create GLFW window" << std::endl;
@@ -33,7 +30,7 @@ bool RenderSystem::Initialize(int width, int height, const char* title) {
     icon.pixels = (unsigned char*)lhep;
     glfwMakeContextCurrent(s_Window);
     glfwSetWindowIcon(s_Window, 1, &icon);
-    glfwSwapInterval(1); // Vertical sync
+    glfwSwapInterval(1);
 
     // Init ImGui
     IMGUI_CHECKVERSION();
@@ -51,7 +48,6 @@ bool RenderSystem::Initialize(int width, int height, const char* title) {
     std::string currentPath(buffer);
     std::cout << "Current working directory: " << currentPath << std::endl;
 
-    // Search fot 'MUX_GUI' in current path
     std::string prefix = "MUX_GUI";
     size_t pos = currentPath.find(prefix);
 
@@ -71,10 +67,8 @@ bool RenderSystem::Initialize(int width, int height, const char* title) {
         std::cerr << "'MUX_GUI' not found in current path." << std::endl;
     }
 
-    // ImGui style
     ImGui::StyleColorsClassic();
 
-    // Setting render platform
     if (!ImGui_ImplGlfw_InitForOpenGL(s_Window, true)) {
         std::cerr << "Failed to init ImGui GLFW backend" << std::endl;
         return false;
@@ -133,7 +127,6 @@ void RenderSystem::EndFrame() {
     glfwSwapBuffers(s_Window);
 }
 
-// Windows getter
 GLFWwindow* RenderSystem::GetWindow() {
     return s_Window;
 }
