@@ -12,7 +12,7 @@ void GuiWindows::ShowMainWindow(AppState& state) {
 	ImGui::SetNextWindowSize(ImVec2(viewport->Size.x * 1.0f, viewport->Size.y));
 
 	ImGui::Begin("Commutator", &state.show_commutator_window, state.window_flags);
-	ImGui::Text("Here is Commutator window. That controls Multiplexers in commutator unit.																"); ImGui::SameLine();
+	ImGui::Text("Here is Commutator window. That controls Multiplexers in commutator unit. Button with additional app information:"); ImGui::SameLine();
 	if (ImGui::SmallButton("App Info")) {
 		ImGui::OpenPopup("Information & Contacts");
 	}
@@ -291,31 +291,102 @@ void GuiWindows::ShowMainWindow(AppState& state) {
 	if (ImGui::BeginTabBar("MUXsTabBar", tab_bar_flags))
 	{
 		/// MUX slot 1
-		if (state.mux_slot_id_1 && ImGui::BeginTabItem("1 x 2 --> 6 pors MUX"))
+		if (state.mux_slot_id_1 && ImGui::BeginTabItem("1 x 2 --> 6 ports MUX"))
 		{
 			ImGui::Text("This is the MUX with ID = 1 tab!");
 
-			auto createPortButtons = [&](const char* portName, int portOffset) {
-				char buffer[32];
+			static uint16_t in1_state = 0;
+			static uint16_t in2_state = 0;
+			static char curr_ports[128] = "No active ports";
+			static bool refresh_requested = true;
+
+			auto updatePortsState = [&]() {
+				try {
+					auto result = comm_modbus.readHoldingRegisters(12, 1, 1);
+					if (result.size() >= 2) {
+						in1_state = result[0];
+						in2_state = result[1];
+
+						if (in1_state > 0 && in1_state <= 6 && in2_state > 0 && in2_state <= 6) {
+							snprintf(curr_ports, sizeof(curr_ports), "In1 -> Out%d | In2 -> Out%d", in1_state, in2_state);
+						}
+						else {
+							snprintf(curr_ports, sizeof(curr_ports), "Invalid port configuration");
+						}
+					}
+				}
+				catch (const std::exception& e) {
+					snprintf(curr_ports, sizeof(curr_ports), "Error reading ports: %s", e.what());
+				}
+				refresh_requested = false;
+				};
+
+			if (refresh_requested) {
+				updatePortsState();
+			}
+
+			if (ImGui::Button("Refresh Ports")) {
+				refresh_requested = true;
+			}
+			ImGui::SameLine();
+			ImGui::PushItemWidth(300);
+			ImGui::InputText("##CurrentPorts", curr_ports, IM_ARRAYSIZE(curr_ports), ImGuiInputTextFlags_ReadOnly);
+			ImGui::PopItemWidth();
+
+			auto createPortButtons = [&](const char* portName, int portOffset, uint16_t& portState, uint16_t& otherPortState) {
 				ImGui::SeparatorText(portName);
 				ImGui::BeginGroup();
-				ImGui::NextColumn();
+
+				ImGui::Text("Current: ");
+				ImGui::SameLine();
+				if (portState > 0 && portState <= 6) {
+					ImGui::TextColored(ImVec4(0, 1, 0, 1), "Out%d", portState);
+				}
+				else {
+					ImGui::TextColored(ImVec4(1, 0, 0, 1), "None");
+				}
 
 				for (int out = 1; out <= 6; out++) {
-					snprintf(buffer, sizeof(buffer), "Set %s x Out%d", portName, out);
-					if (ImGui::Button(buffer)) {
-						comm_modbus.writeSingleRegister(12, portOffset + out, 1);
-						comm_modbus.getPacketLog();
+					if (out > 1) ImGui::SameLine();
+
+					bool is_active = (out == portState);
+					if (is_active) {
+						ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.7f, 0.2f, 1.0f));
+						ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.8f, 0.3f, 1.0f));
 					}
-					if (out < 6) ImGui::SameLine();
-					ImGui::NextColumn();
+
+					std::string button_label = std::string(portName) + " Out" + std::to_string(out);
+					if (ImGui::Button(button_label.c_str())) {
+						try {
+							if (otherPortState > 0 && otherPortState <= 6) {
+								comm_modbus.writeSingleRegister(12, (portOffset == 0 ? 16 : 0) + otherPortState, 0);
+								otherPortState = 0;
+							}
+
+							comm_modbus.writeSingleRegister(12, portOffset + out, 1);
+							portState = out;
+							refresh_requested = true;
+
+							snprintf(curr_ports, sizeof(curr_ports), "In1 -> Out%d | In2 -> Out%d",
+								portOffset == 0 ? out : in1_state,
+								portOffset == 16 ? out : in2_state);
+						}
+						catch (const std::exception& e) {
+							// Error processing
+						}
+					}
+
+					if (is_active) {
+						ImGui::PopStyleColor(2);
+					}
 				}
 
 				ImGui::EndGroup();
 				};
 
-			createPortButtons("In1", 0);
-			createPortButtons("In2", 16);
+			createPortButtons("Input 1", 0, in1_state, in2_state);
+			createPortButtons("Input 2", 16, in2_state, in1_state);
+
 			ImGui::EndTabItem();
 		}
 

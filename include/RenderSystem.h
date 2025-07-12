@@ -1,5 +1,11 @@
 #pragma once
 #include <GLFW/glfw3.h>
+#include "icon.h"
+#include <direct.h>
+#include <iostream>
+#include <fstream>
+#include <cstring>
+#include <vector>
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
